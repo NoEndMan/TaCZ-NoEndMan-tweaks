@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.flameslight.tacz_noendman_tweaks.mixin.compat",
+  "plugin": "net.flameslight.tacz_noendman_tweaks.mixinplugin.CompatMixinPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "tacz_noendman_tweaks.refmap.json",
+  "client": [
+    "LivingEntityRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,111 @@
+plugins {
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+
+minecraft {
+    mappings channel: mapping_channel, version: mapping_version
+
+    // REQUIRED for the processResources expansion to run before launching the game from the IDE.
+    copyIdeResources = true
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+
+            // TACZ's refmap uses SRG names: remap it so its mixins apply in dev runs.
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods {
+                "${mod_id}" {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+        }
+
+        server {
+        }
+    }
+}
+
+repositories {
+    // CurseForge mods as Maven artifacts: curse.maven:<slug>-<projectId>:<fileId>.
+    maven {
+        url "https://cursemaven.com"
+        content { includeGroup "curse.maven" }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+    // TACZ 1.2.0-hotfix (required): compiled against and present in dev runs.
+    implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:${tacz_file_id}")
+
+    // Optional integrations: compile only.
+    compileOnly fg.deobf("curse.maven:immersive-aircraft-666014:${immersive_aircraft_file_id}")
+    compileOnly fg.deobf("curse.maven:entity-model-features-844662:${emf_file_id}")
+    compileOnly fg.deobf("curse.maven:entity-texture-features-fabric-568563:${etf_file_id}")
+    compileOnly fg.deobf("curse.maven:playeranimator-658587:${playeranimator_file_id}")
+}
+
+mixin {
+    add sourceSets.main, "${mod_id}.refmap.json"
+    config "${mod_id}.mixins.json"
+    config "${mod_id}.compat.mixins.json"
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version: forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors: mod_authors, mod_description: mod_description,
+            tacz_version_range: tacz_version_range,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.named('jar', Jar).configure {
+    finalizedBy 'reobfJar'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+// TEMPORARY: leftover Blessfulled sources, excluded until they are deleted.
+sourceSets.main.java {
+    exclude 'net/flameslight/tacz_noendman_tweaks/debug/**'
+    exclude 'net/flameslight/tacz_noendman_tweaks/entity/**'
+    exclude 'net/flameslight/tacz_noendman_tweaks/handlers/PopupTrackingHandler.java'
+    exclude 'net/flameslight/tacz_noendman_tweaks/mixins/**'
+    exclude 'net/flameslight/tacz_noendman_tweaks/registry/**'
+}
