@@ -23,6 +23,12 @@ public final class ClientConfig {
     /** Default of enableUpperBodyTurnWithoutGun. */
     public static final boolean DEFAULT_WITHOUT_GUN = true;
 
+    /** Default of enableBowAimFix. */
+    public static final boolean DEFAULT_BOW_AIM_FIX = true;
+
+    /** Default of enableTridentAimFix. */
+    public static final boolean DEFAULT_TRIDENT_AIM_FIX = true;
+
     /** The registered client config spec. */
     public static final ForgeConfigSpec SPEC;
     /** enableOnVehicle option. */
@@ -35,6 +41,10 @@ public final class ClientConfig {
     public static final ForgeConfigSpec.DoubleValue GENERAL_MAX;
     /** enableUpperBodyTurnWithoutGun option. */
     public static final ForgeConfigSpec.BooleanValue WITHOUT_GUN;
+    /** enableBowAimFix option. */
+    public static final ForgeConfigSpec.BooleanValue BOW_AIM_FIX;
+    /** enableTridentAimFix option. */
+    public static final ForgeConfigSpec.BooleanValue TRIDENT_AIM_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -44,7 +54,7 @@ public final class ClientConfig {
 
         ON_VEHICLE = builder
                 .comment("While riding any vehicle or mount (boats, horses, Immersive Aircraft and others), turns the upper body",
-                        "toward where the player looks. The whole body never turns, the legs stay seated.")
+                        "toward where the player looks. Past 85 degrees on vehicles, the whole body turns by the rest of the angle.")
                 .define("enableOnVehicle", DEFAULT_ON_VEHICLE);
 
         ON_VEHICLE_MAX = builder
@@ -66,6 +76,21 @@ public final class ClientConfig {
                 .define("enableUpperBodyTurnWithoutGun", DEFAULT_WITHOUT_GUN);
 
         builder.pop();
+
+        builder.comment("EMF player animation fixes tweaks.")
+                .push("emf_player_animation_fixes_tweak");
+
+        BOW_AIM_FIX = builder
+                .comment("With EMF, pauses the no-gun torso twist while aiming a bow or crossbow, so player animation packs",
+                        "(like Player Extension) can pose the aim themselves.")
+                .define("enableBowAimFix", DEFAULT_BOW_AIM_FIX);
+
+        TRIDENT_AIM_FIX = builder
+                .comment("Turns the aimed trident toward where the player looks, on foot and riding. With EMF, also removes",
+                        "vanilla's riding arm offset from the trident aiming pose, so player animation packs detect it while riding.")
+                .define("enableTridentAimFix", DEFAULT_TRIDENT_AIM_FIX);
+
+        builder.pop();
         SPEC = builder.build();
     }
 
@@ -75,6 +100,8 @@ public final class ClientConfig {
     private static volatile boolean inGeneral = DEFAULT_IN_GENERAL;
     private static volatile float generalMax = (float) DEFAULT_GENERAL_MAX;
     private static volatile boolean withoutGun = DEFAULT_WITHOUT_GUN;
+    private static volatile boolean bowAimFix = DEFAULT_BOW_AIM_FIX;
+    private static volatile boolean tridentAimFix = DEFAULT_TRIDENT_AIM_FIX;
 
     /**
      * Drops the cached values so they are read again.
@@ -111,6 +138,8 @@ public final class ClientConfig {
         inGeneral = IN_GENERAL.get();
         generalMax = GENERAL_MAX.get().floatValue();
         withoutGun = WITHOUT_GUN.get();
+        bowAimFix = BOW_AIM_FIX.get();
+        tridentAimFix = TRIDENT_AIM_FIX.get();
         resolved = true;
         return true;
     }
@@ -158,6 +187,24 @@ public final class ClientConfig {
      */
     public static boolean isWithoutGun() {
         return resolve() ? withoutGun : DEFAULT_WITHOUT_GUN;
+    }
+
+    /**
+     * Reads enableBowAimFix.
+     *
+     * @return true when the no-gun twist pauses while aiming a bow or crossbow with an EMF-animated model
+     */
+    public static boolean isBowAimFix() {
+        return resolve() ? bowAimFix : DEFAULT_BOW_AIM_FIX;
+    }
+
+    /**
+     * Reads enableTridentAimFix.
+     *
+     * @return true when the trident aiming pose is fixed
+     */
+    public static boolean isTridentAimFix() {
+        return resolve() ? tridentAimFix : DEFAULT_TRIDENT_AIM_FIX;
     }
 
     /**

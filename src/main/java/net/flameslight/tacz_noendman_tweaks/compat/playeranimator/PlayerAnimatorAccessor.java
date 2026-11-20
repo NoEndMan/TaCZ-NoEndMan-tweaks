@@ -1,27 +1,21 @@
 package net.flameslight.tacz_noendman_tweaks.compat.playeranimator;
 
-import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.api.layered.AnimationStack;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.core.util.Pair;
-import dev.kosmx.playerAnim.core.util.Vec3f;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
-import net.flameslight.tacz_noendman_tweaks.util.TurnMathUtils;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.layers.OutsideVehicleGunTwistLayer;
-import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.layers.OnVehicleGunAimLayer;
 import net.flameslight.tacz_noendman_tweaks.config.CommonConfig;
 import net.flameslight.tacz_noendman_tweaks.util.ReflectionUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * The Player Animator code behind PlayerAnimatorCompat, and the upper body turn helpers of this mod's layers. Only
- * reached when Player Animator is installed.
+ * The Player Animator code behind PlayerAnimatorCompat. Only reached when Player Animator is installed.
  */
 public final class PlayerAnimatorAccessor {
 
@@ -65,7 +59,7 @@ public final class PlayerAnimatorAccessor {
                 IAnimation animation = (IAnimation) pair.getRight();
 
                 if (animation == lower || animation == loopUpper || animation == onceUpper || animation == rotation
-                        || animation instanceof OnVehicleGunAimLayer || animation instanceof OutsideVehicleGunTwistLayer) {
+                        || animation instanceof OutsideVehicleGunTwistLayer) {
                     continue;
                 }
 
@@ -112,75 +106,5 @@ public final class PlayerAnimatorAccessor {
      */
     static IAnimation taczLayer(PlayerAnimationAccess.PlayerAssociatedAnimationData data, ResourceLocation id) {
         return id == null ? null : data.get(id);
-    }
-
-    /**
-     * Tells whether a part belongs to the upper body that turns.
-     *
-     * @param modelName the Player Animator part name
-     * @return true for the torso, head and both arms
-     */
-    public static boolean isUpperBody(String modelName) {
-        return "torso".equals(modelName) || "head".equals(modelName)
-                || "rightArm".equals(modelName) || "leftArm".equals(modelName);
-    }
-
-    /**
-     * Turns one upper body part value around the vertical axis.
-     *
-     * @param type  the transform type, POSITION or ROTATION
-     * @param value the part's pivot in model units, or its rotation in radians
-     * @param yaw   the turn in radians
-     * @return the turned value
-     */
-    public static Vec3f turn(TransformType type, Vec3f value, float yaw) {
-        return type == TransformType.POSITION ? turnPosition(value, yaw) : turnRotation(value, yaw);
-    }
-
-    /**
-     * Turns one upper body part value, with the head turning only as far as the look angle.
-     *
-     * @param player    the player
-     * @param modelName the Player Animator part name
-     * @param type      the transform type, POSITION or ROTATION
-     * @param value     the part's pivot in model units, or its rotation in radians
-     * @param yaw       the upper body turn in radians
-     * @param tickDelta the partial tick
-     * @return the turned value
-     */
-    public static Vec3f turnPart(AbstractClientPlayer player, String modelName, TransformType type, Vec3f value,
-                                 float yaw, float tickDelta) {
-        if (type == TransformType.ROTATION && "head".equals(modelName)) {
-            float target = TurnMathUtils.headTargetDegrees(player, tickDelta) * Mth.DEG_TO_RAD;
-            return turnRotation(value, TurnMathUtils.headTurn(value.getY(), target, yaw));
-        }
-        return turn(type, value, yaw);
-    }
-
-    /**
-     * Moves a part pivot around the vertical axis through the model origin.
-     *
-     * @param position the pivot in model units
-     * @param yaw      the turn in radians
-     * @return the moved pivot
-     */
-    private static Vec3f turnPosition(Vec3f position, float yaw) {
-        float cos = Mth.cos(yaw);
-        float sin = Mth.sin(yaw);
-        float x = position.getX();
-        float z = position.getZ();
-        return new Vec3f(x * cos + z * sin, position.getY(), -x * sin + z * cos);
-    }
-
-    /**
-     * Turns a part rotation around the vertical axis.
-     *
-     * @param rotation the rotation in radians, as x, y and z angles
-     * @param yaw      the turn in radians
-     * @return the turned rotation
-     */
-    private static Vec3f turnRotation(Vec3f rotation, float yaw) {
-        float[] turned = TurnMathUtils.turnRotation(rotation.getX(), rotation.getY(), rotation.getZ(), yaw);
-        return new Vec3f(turned[0], turned[1], turned[2]);
     }
 }

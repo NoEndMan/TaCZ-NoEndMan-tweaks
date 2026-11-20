@@ -19,7 +19,6 @@ public final class TwistPass {
     private final float handover;
     private final float gunTurn;
     private final float headTarget;
-    private final boolean afterEmf;
 
     /**
      * Creates a pass for one player render.
@@ -30,10 +29,8 @@ public final class TwistPass {
      * @param handover   how much of the gun pose's turn is still kept, 1 for all, 0 for none
      * @param gunTurn    the gun pose's upper body turn in radians
      * @param headTarget the yaw in radians the head faces
-     * @param afterEmf   true to twist only after EMF's animation
      */
-    public TwistPass(LivingEntity entity, float torso, float arms, float handover, float gunTurn, float headTarget,
-                     boolean afterEmf) {
+    public TwistPass(LivingEntity entity, float torso, float arms, float handover, float gunTurn, float headTarget) {
         this.entity = entity;
         this.angles[PartSet.BODY] = torso;
         this.angles[1] = arms;
@@ -41,7 +38,6 @@ public final class TwistPass {
         this.handover = handover;
         this.gunTurn = gunTurn;
         this.headTarget = headTarget;
-        this.afterEmf = afterEmf;
     }
 
     /**
@@ -110,15 +106,33 @@ public final class TwistPass {
         PartSet set = new PartSet(this, new ModelPart[]{body, rightArm, leftArm, head},
                 new ModelPart[]{jacket, rightSleeve, leftSleeve, hat});
         set.capture(first);
+        set.twistAll();
+        this.sets.add(set);
+    }
 
-        if (first == null && this.afterEmf) {
-            // Twisted after EMF's animation.
-            set.markPending();
-        } else {
-            set.twistAll();
+    /**
+     * Tells whether this pass twists the model with the given body part.
+     *
+     * @param body the body part, may be null
+     * @return true when one of the pass's sets holds it
+     */
+    public boolean isFor(ModelPart body) {
+        for (PartSet set : this.sets) {
+            if (set.isFor(body))
+                return true;
         }
 
-        this.sets.add(set);
+        return false;
+    }
+
+    /**
+     * Puts the untwisted poses back in every set, before another mod (EMF) animates the model. The next reapply
+     * twists again.
+     */
+    public void untwist() {
+        for (PartSet set : this.sets) {
+            set.untwist();
+        }
     }
 
     /**

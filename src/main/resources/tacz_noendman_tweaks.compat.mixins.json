@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "tacz_noendman_tweaks.refmap.json",
   "client": [
+    "HumanoidModelMixin",
     "LivingEntityRendererMixin"
   ],
   "injectors": {

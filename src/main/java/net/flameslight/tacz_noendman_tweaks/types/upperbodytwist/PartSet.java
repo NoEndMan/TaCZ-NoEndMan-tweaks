@@ -27,9 +27,9 @@ final class PartSet {
     private final PartPose[] layerRestorePose = new PartPose[PART_COUNT];
 
     /*
-        True while the set waits for EMF's animation.
+        True after untwist, so the next reapplyIfChanged twists again even where nothing changed.
      */
-    private boolean pending;
+    private boolean untwisted;
 
     /**
      * Creates a part set.
@@ -79,18 +79,32 @@ final class PartSet {
     }
 
     /**
-     * Makes the set wait for EMF's animation before its first twist.
+     * Puts the untwisted poses back, so another mod (EMF) reads the vanilla pose. The next reapplyIfChanged twists
+     * again.
      */
-    void markPending() {
-        this.pending = true;
+    void untwist() {
+        for (int i = 0; i < PART_COUNT; i++) {
+            if (this.parts[i] == null) {
+                continue;
+            }
+
+            this.parts[i].loadPose(this.base[i]);
+            this.applied[i] = this.base[i];
+
+            if (this.layers[i] != null)
+                this.layers[i].copyFrom(this.parts[i]);
+        }
+
+        this.untwisted = true;
     }
 
     /**
      * Twists again the parts that changed since the last twist.
      */
     void reapplyIfChanged() {
-        boolean changed = this.pending;
-        this.pending = false;
+        boolean changed = this.untwisted;
+
+        this.untwisted = false;
 
         for (int i = 0; i < PART_COUNT; i++) {
             if (this.parts[i] == null) {

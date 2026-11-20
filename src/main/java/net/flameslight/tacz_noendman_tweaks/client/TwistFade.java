@@ -4,7 +4,6 @@ import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfCompat;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
 import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
 import net.flameslight.tacz_noendman_tweaks.config.TurnSettings;
-import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.flameslight.tacz_noendman_tweaks.util.TurnMathUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -67,14 +66,6 @@ public final class TwistFade {
 
         STRENGTH.values().removeIf(strength -> strength[0] == 0.0F && strength[1] == 0.0F);
         HANDOVER.values().removeIf(handover -> handover[0] == 0.0F && handover[1] == 0.0F);
-
-        AbstractClientPlayer local = minecraft.player;
-
-        if (local != null && local.tickCount % 20 == 0 && strength(local, 1.0F) > 0.0F) {
-            ModLogger.debug("upper body twist {} degrees (strength {}, head-body {} degrees, riding {})",
-                    NoGunTwist.twistDegrees(local, 1.0F) * strength(local, 1.0F), strength(local, 1.0F),
-                    TurnMathUtils.headYaw(local, 1.0F), local.getVehicle() != null);
-        }
     }
 
     /**
@@ -130,7 +121,7 @@ public final class TwistFade {
         if (!ClientConfig.isEnabledFor(riding) || (!riding && !TurnMathUtils.isUpright(player)))
             return false;
 
-        if (isAiming(player) && EmfCompat.isTurnDeferred(player)) {
+        if (isAiming(player) && ClientConfig.isBowAimFix() && EmfCompat.isModelAnimated(player)) {
             // Player animation packs turn the upper body toward the aim themselves.
             return false;
         }

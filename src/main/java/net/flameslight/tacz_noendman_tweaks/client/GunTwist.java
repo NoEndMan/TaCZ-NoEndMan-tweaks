@@ -1,10 +1,11 @@
-package net.flameslight.tacz_noendman_tweaks.compat.emf;
+package net.flameslight.tacz_noendman_tweaks.client;
 
 import net.flameslight.tacz_noendman_tweaks.util.TurnMathUtils;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.flameslight.tacz_noendman_tweaks.types.upperbodytwist.GunTurnEntry;
 import net.flameslight.tacz_noendman_tweaks.types.upperbodytwist.TwistPass;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -15,12 +16,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
- * Applies the upper body gun twist, when a player animation resource pack animates the player, after EMF's animation
- * instead of inside Player Animator. Render thread only.
+ * The upper body gun twist, applied to the player model after it is set up. When EMF animates the model, the twist
+ * steps aside during EMF's animation and is applied again on its result. Render thread only.
  */
-public final class EmfGunTwist {
-
-    private static final boolean ACTIVE_MODS = EmfCompat.LOADED && PlayerAnimatorCompat.LOADED;
+public final class GunTwist {
 
     /*
         Players currently being drawn.
@@ -28,20 +27,21 @@ public final class EmfGunTwist {
     private static final Deque<GunTurnEntry> ACTIVE = new ArrayDeque<>();
 
     /**
-     * Records a player whose model was just set up, for the EMF hook.
+     * Applies the gun twist to a player model that was just set up, and records the render for the EMF hooks.
      *
      * @param player      the player being drawn
      * @param model       the player's model, already set up for this frame
      * @param partialTick the partial tick of this frame
      */
     public static void begin(AbstractClientPlayer player, PlayerModel<?> model, float partialTick) {
-        if (!ACTIVE_MODS)
+        if (!PlayerAnimatorCompat.LOADED)
             return;
 
-        if (!EmfCompat.isTurnDeferred(player)
+        Minecraft minecraft = Minecraft.getInstance();
+
+        if ((player == minecraft.getCameraEntity() && minecraft.options.getCameraType().isFirstPerson())
                 || !TurnMathUtils.isGunTurnEnabled(player)
                 || !PlayerAnimatorCompat.isTaczGunPose(player)) {
-            // No gun turn after EMF, only track whether EMF animates this player.
             ACTIVE.push(new GunTurnEntry(player, model.body, null));
             return;
         }
@@ -50,26 +50,33 @@ public final class EmfGunTwist {
         float headTarget = TurnMathUtils.headTargetDegrees(player, partialTick) * Mth.DEG_TO_RAD;
 
         // The whole gun turn kept (1): torso and arms turn by the gun turn around the model center.
-        TwistPass pass = new TwistPass(player, yaw, yaw, 1.0F, yaw, headTarget, true);
+        TwistPass pass = new TwistPass(player, yaw, yaw, 1.0F, yaw, headTarget);
         pass.reapplyOn(model.body, model.rightArm, model.leftArm, model.head,
                 model.jacket, model.rightSleeve, model.leftSleeve, model.hat);
         ACTIVE.push(new GunTurnEntry(player, model.body, pass));
     }
 
     /**
-     * Marks the player as animated by EMF and applies the gun turn after EMF's animation.
+     * Puts the untwisted pose back before EMF animates the model, so EMF reads the vanilla pose.
+     *
+     * @param body the body part of the model EMF animates, may be null
+     */
+    public static void beforeAnimation(ModelPart body) {
+        GunTurnEntry top = ACTIVE.peek();
+
+        if (top != null && top.isFor(body))
+            top.untwist();
+    }
+
+    /**
+     * Applies the gun twist again on EMF's animation result.
      *
      * @param body the body part of the model EMF animated, may be null
      */
     public static void afterAnimation(ModelPart body) {
         GunTurnEntry top = ACTIVE.peek();
 
-        if (top == null || !top.isFor(body))
-            return;
-
-        EmfCompat.markAnimated(top.getEntity());
-
-        if (top.reapply())
+        if (top != null && top.isFor(body) && top.reapply())
             ModLogger.debugOnce("gun turn applied after an EMF animation");
     }
 

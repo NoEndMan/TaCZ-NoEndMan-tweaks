@@ -4,7 +4,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.LivingEntity;
 
 /**
- * One player render tracked by GunTorsoTurn.
+ * One player render tracked by EmfGunTwist.
  */
 public final class GunTurnEntry {
 
@@ -17,7 +17,7 @@ public final class GunTurnEntry {
      *
      * @param entity the player
      * @param body   the model's body part
-     * @param pass   the gun turn applied after EMF's animation, or null when there is none
+     * @param pass   the gun turn, or null when there is none
      */
     public GunTurnEntry(LivingEntity entity, ModelPart body, TwistPass pass) {
         this.entity = entity;
@@ -45,7 +45,7 @@ public final class GunTurnEntry {
     }
 
     /**
-     * Applies the gun turn to what EMF posed, the first time after its animation and again after it overwrites parts.
+     * Applies the gun turn again to what EMF posed, after its animation or after it overwrites parts.
      *
      * @return true when this render has a gun turn
      */
@@ -55,6 +55,14 @@ public final class GunTurnEntry {
 
         this.pass.reapply();
         return true;
+    }
+
+    /**
+     * Puts the untwisted poses back before EMF's animation.
+     */
+    public void untwist() {
+        if (this.pass != null)
+            this.pass.untwist();
     }
 
     /**

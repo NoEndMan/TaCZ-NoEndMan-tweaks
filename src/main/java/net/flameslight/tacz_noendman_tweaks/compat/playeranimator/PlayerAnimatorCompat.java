@@ -1,7 +1,6 @@
 package net.flameslight.tacz_noendman_tweaks.compat.playeranimator;
 
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.layers.OutsideVehicleGunTwistLayer;
-import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.layers.OnVehicleGunAimLayer;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraftforge.fml.ModList;
 
@@ -21,10 +20,8 @@ public final class PlayerAnimatorCompat {
      * Registers this mod's Player Animator layers, when Player Animator is installed.
      */
     public static void registerLayers() {
-        if (LOADED) {
-            OnVehicleGunAimLayer.register();
+        if (LOADED)
             OutsideVehicleGunTwistLayer.register();
-        }
     }
 
     /**
@@ -45,30 +42,5 @@ public final class PlayerAnimatorCompat {
      */
     public static boolean isAnimating(AbstractClientPlayer player) {
         return LOADED && PlayerAnimatorAccessor.isAnimating(player);
-    }
-
-    /**
-     * Describes which gun layers are active, for the debug log.
-     *
-     * @param player the player
-     * @return the state of each layer
-     */
-    public static String describeGunLayers(AbstractClientPlayer player) {
-        return LOADED
-                ? PlayerAnimationDebug.describeGunLayers(player)
-                : "no Player Animator";
-    }
-
-    /**
-     * Describes the whole player rotation Player Animator gives this frame, for the debug log.
-     *
-     * @param player    the player
-     * @param tickDelta the partial tick
-     * @return the rotation in degrees
-     */
-    public static String describeWholeBodyRotation(AbstractClientPlayer player, float tickDelta) {
-        return LOADED
-                ? PlayerAnimationDebug.describeWholeBodyRotation(player, tickDelta)
-                : "no Player Animator";
     }
 }

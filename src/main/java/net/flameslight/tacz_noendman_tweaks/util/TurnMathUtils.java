@@ -92,7 +92,41 @@ public final class TurnMathUtils {
             }
         }
         float yaw = Mth.wrapDegrees(head - body);
+        yaw -= excessPastLimit(entity, yaw);
         return LivingEntityRenderer.isEntityUpsideDown(entity) ? -yaw : yaw;
+    }
+
+    /**
+     * Returns how far the whole player turns on a vehicle that is not a living mount, so the head stays within the
+     * head turn limit from the legs.
+     *
+     * @param entity      the entity
+     * @param partialTick the partial tick of this frame
+     * @return the whole body turn in degrees, 0 when none, positive toward the same side as vanilla's head yaw
+     */
+    public static float vehicleBodyExcess(LivingEntity entity, float partialTick) {
+        float body = Mth.rotLerp(partialTick, entity.yBodyRotO, entity.yBodyRot);
+        float head = Mth.rotLerp(partialTick, entity.yHeadRotO, entity.yHeadRot);
+
+        return excessPastLimit(entity, Mth.wrapDegrees(head - body));
+    }
+
+    /**
+     * Returns the part of a head-to-body angle past the head turn limit, on a vehicle that is not a living mount.
+     *
+     * @param entity the entity
+     * @param yaw    the head-to-body angle in degrees
+     * @return the angle past the limit in degrees, 0 when within it or not on such a vehicle
+     */
+    private static float excessPastLimit(LivingEntity entity, float yaw) {
+        Entity vehicle = entity.getVehicle();
+
+        if (vehicle == null
+                || (vehicle.shouldRiderSit() && vehicle instanceof LivingEntity)
+                || !ClientConfig.isOnVehicle())
+            return 0.0F;
+
+        return yaw - Mth.clamp(yaw, -TurnSettings.MOUNT_HEAD_MAX_DEGREES, TurnSettings.MOUNT_HEAD_MAX_DEGREES);
     }
 
     /**

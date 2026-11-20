@@ -1,6 +1,5 @@
 package net.flameslight.tacz_noendman_tweaks.client;
 
-import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfCompat;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
 import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
 import net.flameslight.tacz_noendman_tweaks.config.TurnSettings;
@@ -60,7 +59,7 @@ public final class NoGunTwist {
             return;
         }
         if (PlayerAnimatorCompat.isTaczGunPose(player)) {
-            // TACZ's gun pose is turned by RidingGunAimLayer and GunTwistLayer inside Player Animator.
+            // TACZ's gun pose is turned by EmfGunTwist.
             return;
         }
         // Right after a gun pose ends, start from the gun pose's turn and hand over to the twist.
@@ -80,9 +79,9 @@ public final class NoGunTwist {
             return;
         }
 
-        // With EMF, the twist is applied after EMF's animation.
+        // With EMF, the twist steps aside during EMF's animation and is applied again on its result.
         TwistPass pass = new TwistPass(player, torso, arms * Mth.DEG_TO_RAD, handover, gunTurn * Mth.DEG_TO_RAD,
-                TurnMathUtils.headYaw(player, partialTick) * Mth.DEG_TO_RAD, EmfCompat.isTurnDeferred(player));
+                TurnMathUtils.headYaw(player, partialTick) * Mth.DEG_TO_RAD);
         pass.reapplyOn(model.body, model.rightArm, model.leftArm, model.head,
                 model.jacket, model.rightSleeve, model.leftSleeve, model.hat);
         ACTIVE.push(pass);
@@ -101,6 +100,18 @@ public final class NoGunTwist {
             ACTIVE.pop();
             top.restore();
         }
+    }
+
+    /**
+     * Puts the untwisted pose back before EMF animates the model, so EMF reads the vanilla pose.
+     *
+     * @param body the body part of the model EMF animates, may be null
+     */
+    public static void untwistTop(ModelPart body) {
+        TwistPass top = ACTIVE.peek();
+
+        if (top != null && top.isFor(body))
+            top.untwist();
     }
 
     /**
