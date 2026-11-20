@@ -1,54 +1,56 @@
 package net.flameslight.tacz_noendman_tweaks.client;
 
-import net.flameslight.tacz_noendman_tweaks.TaczNoEndManTweaks;
-import net.flameslight.tacz_noendman_tweaks.compat.aircraft.AircraftCheck;
-import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCheck;
+import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfCompat;
+import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
+import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
+import net.flameslight.tacz_noendman_tweaks.config.TurnSettings;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
+import net.flameslight.tacz_noendman_tweaks.util.TurnMathUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.util.Mth;
-import net.minecraftforge.fml.ModList;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 
 import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Per-player strength of the upper body twist, from 0 (off) to 1 (full). Once per client tick it moves toward
- * 1 while the player flies an Immersive Aircraft vehicle with no Player Animator animation playing, and toward
- * 0 otherwise. Rendering interpolates between the last two tick values, so the fade is smooth at any frame rate.
+ * Per-player fade values updated each client tick
  */
 public final class TwistFade {
 
-    /** How much the strength changes per tick: 4 ticks from off to full. */
-    public static final float STEP_PER_TICK = 0.25F;
-
-    private static final boolean AIRCRAFT_LOADED = ModList.get().isLoaded(TaczNoEndManTweaks.IMMERSIVE_AIRCRAFT_ID);
-
-    private static final boolean PLAYER_ANIMATOR_LOADED = ModList.get().isLoaded(TaczNoEndManTweaks.PLAYER_ANIMATOR_ID);
-
     /*
-        Per player: index 0 is the strength at the previous tick, index 1 the strength at this tick.
-        Weak keys, so players that leave the level are dropped with them.
+        Per player: the strength at the previous tick and at this tick.
      */
     private static final Map<AbstractClientPlayer, float[]> STRENGTH = new WeakHashMap<>();
 
+    /*
+        Per player: how much of the gun pose's turn is still kept (1 all, 0 none), at the previous tick and at this
+        tick.
+     */
+    private static final Map<AbstractClientPlayer, float[]> HANDOVER = new WeakHashMap<>();
+
     /**
-     * Updates every player's twist strength. Called by ClientEvents at the end of each client tick. Logs the local
-     * player's twist once per second in debug mode. Does nothing without Immersive Aircraft.
+     * Updates every player's twist strength and how much of the gun pose's turn is still kept. Called once per
+     * client tick.
      */
     public static void onClientTick() {
-        if (!AIRCRAFT_LOADED) {
-            return;
-        }
         Minecraft minecraft = Minecraft.getInstance();
+
         if (minecraft.level == null) {
             STRENGTH.clear();
+            HANDOVER.clear();
             return;
         }
+
         for (AbstractClientPlayer player : minecraft.level.players()) {
-            boolean twist = AircraftCheck.isFlying(player)
-                    && !(PLAYER_ANIMATOR_LOADED && PlayerAnimatorCheck.isAnimating(player));
+            updateHandover(player);
+            boolean twist = isAllowed(player);
             float[] strength = STRENGTH.get(player);
+
             if (strength == null) {
                 if (!twist) {
                     continue;
@@ -56,18 +58,110 @@ public final class TwistFade {
                 strength = new float[2];
                 STRENGTH.put(player, strength);
             }
+
             strength[0] = strength[1];
-            strength[1] = twist ? Math.min(1.0F, strength[1] + STEP_PER_TICK) : Math.max(0.0F, strength[1] - STEP_PER_TICK);
+            strength[1] = twist
+                    ? Math.min(1.0F, strength[1] + TurnSettings.STEP_PER_TICK)
+                    : Math.max(0.0F, strength[1] - TurnSettings.STEP_PER_TICK);
         }
+
         STRENGTH.values().removeIf(strength -> strength[0] == 0.0F && strength[1] == 0.0F);
+        HANDOVER.values().removeIf(handover -> handover[0] == 0.0F && handover[1] == 0.0F);
 
         AbstractClientPlayer local = minecraft.player;
-        if (local != null && local.tickCount % 20 == 0 && AircraftCheck.isFlying(local)) {
-            ModLogger.debug("upper body twist {} degrees (strength {}, head-body {} degrees, player animator active {})",
-                    UpperBodyTwist.twistDegrees(local, 1.0F) * strength(local, 1.0F), strength(local, 1.0F),
-                    Mth.wrapDegrees(local.yHeadRot - local.yBodyRot),
-                    PLAYER_ANIMATOR_LOADED && PlayerAnimatorCheck.isAnimating(local));
+
+        if (local != null && local.tickCount % 20 == 0 && strength(local, 1.0F) > 0.0F) {
+            ModLogger.debug("upper body twist {} degrees (strength {}, head-body {} degrees, riding {})",
+                    NoGunTwist.twistDegrees(local, 1.0F) * strength(local, 1.0F), strength(local, 1.0F),
+                    TurnMathUtils.headYaw(local, 1.0F), local.getVehicle() != null);
         }
+    }
+
+    /**
+     * Updates how much of the gun pose's turn, a player still keeps: all of it while holding a gun, then less each
+     * tick after the gun is put away.
+     *
+     * @param player the player
+     */
+    private static void updateHandover(AbstractClientPlayer player) {
+        boolean gun = TurnMathUtils.isGunTurnEnabled(player)
+                && PlayerAnimatorCompat.isTaczGunPose(player);
+        float[] handover = HANDOVER.get(player);
+
+        if (handover == null) {
+            if (!gun)
+                return;
+
+            handover = new float[2];
+            HANDOVER.put(player, handover);
+        }
+
+        float previous = handover[1];
+
+        handover[1] = gun ? 1.0F : Math.max(0.0F, previous - TurnSettings.HANDOVER_STEP_PER_TICK);
+        handover[0] = gun ? 1.0F : previous;
+    }
+
+    /**
+     * Returns how much of the gun pose's turn, the upper body still keeps after a gun was put away, so it eases into
+     * the no-gun twist instead of snapping.
+     *
+     * @param player      the player
+     * @param partialTick the partial tick of this frame
+     * @return 1 for all of the gun turn, 0 for none of it
+     */
+    public static float handover(AbstractClientPlayer player, float partialTick) {
+        float[] handover = HANDOVER.get(player);
+        return handover == null ? 0.0F : Mth.lerp(partialTick, handover[0], handover[1]);
+    }
+
+    /**
+     * Tells whether the no-gun twist is allowed for a player right now.
+     *
+     * @param player the player
+     * @return true when the twist is allowed
+     */
+    private static boolean isAllowed(AbstractClientPlayer player) {
+        if (!ClientConfig.isWithoutGun())
+            return false;
+
+        boolean riding = player.getVehicle() != null;
+
+        if (!ClientConfig.isEnabledFor(riding) || (!riding && !TurnMathUtils.isUpright(player)))
+            return false;
+
+        if (isAiming(player) && EmfCompat.isTurnDeferred(player)) {
+            // Player animation packs turn the upper body toward the aim themselves.
+            return false;
+        }
+
+        return !PlayerAnimatorCompat.isAnimating(player);
+    }
+
+    /**
+     * Tells whether a player aims a bow or crossbow.
+     *
+     * @param player the player
+     * @return true while aiming
+     */
+    // TODO: works with modded bows, tridents and other items that use aim animation?
+    private static boolean isAiming(AbstractClientPlayer player) {
+        if (player.isUsingItem()) {
+            UseAnim animation = player.getUseItem().getUseAnimation();
+
+            if (animation == UseAnim.BOW || animation == UseAnim.CROSSBOW)
+                return true;
+        }
+
+        for (InteractionHand hand : InteractionHand.values()) {
+            ItemStack stack = player.getItemInHand(hand);
+
+            if (stack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(stack))
+                return true;
+
+        }
+
+        return false;
     }
 
     /**
@@ -75,7 +169,7 @@ public final class TwistFade {
      *
      * @param player      the player
      * @param partialTick the partial tick of this frame
-     * @return the strength from 0 to 1, interpolated between the last two ticks
+     * @return the strength from 0 to 1
      */
     public static float strength(AbstractClientPlayer player, float partialTick) {
         float[] strength = STRENGTH.get(player);

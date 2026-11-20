@@ -1,10 +1,13 @@
 package net.flameslight.tacz_noendman_tweaks.events;
 
 import net.flameslight.tacz_noendman_tweaks.TaczNoEndManTweaks;
-import net.flameslight.tacz_noendman_tweaks.client.ClientSetup;
+import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfCompat;
+import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
 import net.flameslight.tacz_noendman_tweaks.config.CommonConfig;
-import net.flameslight.tacz_noendman_tweaks.handlers.SetupHandler;
+import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
+import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -22,17 +25,16 @@ public class ModEvents {
      */
     @SubscribeEvent
     public static void onConfigLoaded(ModConfigEvent event) {
-        CommonConfig.onConfigLoaded(event.getConfig(), event instanceof ModConfigEvent.Unloading);
+        boolean unloading = event instanceof ModConfigEvent.Unloading;
+        CommonConfig.onConfigLoaded(event.getConfig(), unloading);
+        ClientConfig.onConfigLoaded(event.getConfig(), unloading);
     }
 
-    /**
-     * Common setup.
-     *
-     * @param event the common setup event
-     */
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
-        SetupHandler.logIntegrations();
+        ModList mods = ModList.get();
+        ModLogger.debug("Integrations: Entity Model Features {}, Player Animator {}",
+                mods.isLoaded(EmfCompat.MOD_ID), mods.isLoaded(PlayerAnimatorCompat.MOD_ID));
     }
 
     /**
@@ -42,6 +44,7 @@ public class ModEvents {
      */
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(ClientSetup::init);
+        event.enqueueWork(EmfCompat::registerHook);
+        event.enqueueWork(PlayerAnimatorCompat::registerLayers);
     }
 }

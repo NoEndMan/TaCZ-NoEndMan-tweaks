@@ -65,7 +65,6 @@ dependencies {
     implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:${tacz_file_id}")
 
     // Optional integrations: compile only.
-    compileOnly fg.deobf("curse.maven:immersive-aircraft-666014:${immersive_aircraft_file_id}")
     compileOnly fg.deobf("curse.maven:entity-model-features-844662:${emf_file_id}")
     compileOnly fg.deobf("curse.maven:entity-texture-features-fabric-568563:${etf_file_id}")
     compileOnly fg.deobf("curse.maven:playeranimator-658587:${playeranimator_file_id}")

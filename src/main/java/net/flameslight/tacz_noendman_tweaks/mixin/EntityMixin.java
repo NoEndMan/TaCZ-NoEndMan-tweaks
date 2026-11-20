@@ -1,4 +1,4 @@
-package net.flameslight.tacz_noendman_tweaks.mixin.core;
+package net.flameslight.tacz_noendman_tweaks.mixin;
 
 import com.tacz.guns.entity.sync.core.DataHolder;
 import net.flameslight.tacz_noendman_tweaks.types.DataHolderCache;

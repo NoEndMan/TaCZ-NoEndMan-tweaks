@@ -1,8 +1,10 @@
-package net.flameslight.tacz_noendman_tweaks.mixin.compat;
+package net.flameslight.tacz_noendman_tweaks.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.flameslight.tacz_noendman_tweaks.client.PoseDebug;
-import net.flameslight.tacz_noendman_tweaks.client.UpperBodyTwist;
+import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfGunTwist;
+import net.flameslight.tacz_noendman_tweaks.logger.debug.PoseDebug;
+import net.flameslight.tacz_noendman_tweaks.logger.debug.TransitionDebug;
+import net.flameslight.tacz_noendman_tweaks.client.NoGunTwist;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,9 +16,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Applies the upper body twist right after the model is set up (so after vanilla and Player Animator), and
- * restores the pose when the render ends (so after the armor and held item layers, which follow the twist).
- * Only applied when Immersive Aircraft is installed.
+ * Applies the upper body twist after the player model is set up, and restores the pose when the render ends.
  */
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin {
@@ -42,12 +42,16 @@ public abstract class LivingEntityRendererMixin {
         if (entity instanceof AbstractClientPlayer player
                 && ((LivingEntityRenderer<?, ?>) (Object) this).getModel() instanceof PlayerModel<?> model) {
             PoseDebug.logModel("after setupAnim", player, model);
-            UpperBodyTwist.begin(player, model, partialTick);
+            PoseDebug.logBow("after setupAnim", player, model);
+            TransitionDebug.afterSetupAnim(player, model);
+            NoGunTwist.begin(player, model, partialTick);
+            EmfGunTwist.begin(player, model, partialTick);
+            PoseDebug.logBow("after twist", player, model);
         }
     }
 
     /**
-     * Restores the pose when the render ends. In debug mode it first logs the pose the player was drawn with.
+     * Restores the pose when the render ends.
      *
      * @param entity      the entity that was drawn
      * @param entityYaw   the entity yaw
@@ -63,7 +67,10 @@ public abstract class LivingEntityRendererMixin {
         if (entity instanceof AbstractClientPlayer player
                 && ((LivingEntityRenderer<?, ?>) (Object) this).getModel() instanceof PlayerModel<?> model) {
             PoseDebug.logModel("after render", player, model);
+            PoseDebug.logBow("after render", player, model);
+            TransitionDebug.afterRender(player, model, partialTick);
         }
-        UpperBodyTwist.end(entity);
+        EmfGunTwist.end(entity);
+        NoGunTwist.end(entity);
     }
 }

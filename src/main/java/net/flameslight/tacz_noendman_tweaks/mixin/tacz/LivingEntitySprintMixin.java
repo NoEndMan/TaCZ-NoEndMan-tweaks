@@ -1,4 +1,4 @@
-package net.flameslight.tacz_noendman_tweaks.mixin.core.tacz;
+package net.flameslight.tacz_noendman_tweaks.mixin.tacz;
 
 import com.tacz.guns.entity.shooter.LivingEntitySprint;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;

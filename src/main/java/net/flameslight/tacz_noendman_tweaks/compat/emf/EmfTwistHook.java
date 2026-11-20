@@ -1,6 +1,7 @@
 package net.flameslight.tacz_noendman_tweaks.compat.emf;
 
-import net.flameslight.tacz_noendman_tweaks.client.UpperBodyTwist;
+import net.flameslight.tacz_noendman_tweaks.logger.debug.PoseDebug;
+import net.flameslight.tacz_noendman_tweaks.client.NoGunTwist;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
@@ -12,15 +13,13 @@ import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import java.util.Map;
 
 /**
- * Entity Model Features hook, done the way EMF Compat Core keeps Not Enough Animations poses: EMF draws through
- * its own part objects and animates them while the model renders, after the twist was first applied. So when an
- * EMF animation ends, the twist is applied to the animated root's own body and arm parts, and when EMF copies its
- * stored biped pose onto a humanoid model, to that model's parts. Only loaded when EMF is installed.
+ * EMF animation hook that applies the twist and the gun turn again after EMF re-poses the player model. Only loaded
+ * when EMF is installed.
  */
 public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
 
     /**
-     * Applies the twist to the body and arm parts of the root EMF just animated.
+     * Applies the twist and the gun turn after an EMF animation.
      *
      * @param context the animation context
      * @param paused  whether the animation was paused
@@ -28,18 +27,24 @@ public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
     @Override
     public void onAnimationEnd(EMFAnimationApi.EMFAnimationHook.AnimationContext context, boolean paused) {
         EMFModelPartRoot root = context.animatingModelRoot();
-        if (root == null) {
-            return;
-        }
+
+        /* keep just in case it would be found out that this might return null
+        if (root == null)
+            return;*/
+
         Map<String, EMFModelPartVanilla> parts = root.getAllVanillaPartsByNameEMF();
-        UpperBodyTwist.reapplyOn(parts.get("body"), parts.get("right_arm"), parts.get("left_arm"), parts.get("head"),
+        PoseDebug.logBowParts("after EMF animation", parts.get("body"), parts.get("head"), parts.get("right_arm"),
+                parts.get("left_arm"));
+        NoGunTwist.reapplyOn(parts.get("body"), parts.get("right_arm"), parts.get("left_arm"), parts.get("head"),
                 parts.get("jacket"), parts.get("right_sleeve"), parts.get("left_sleeve"), parts.get("hat"));
+        EmfGunTwist.afterAnimation(parts.get("body"));
+        PoseDebug.logBowParts("after EMF animation and twist", parts.get("body"), parts.get("head"),
+                parts.get("right_arm"), parts.get("left_arm"));
         ModLogger.debugOnce("upper body twist applied after an EMF animation");
     }
 
     /**
-     * Applies the twist after EMF copied its stored biped pose onto a humanoid model, which can happen after
-     * the animation itself and would otherwise undo the twist.
+     * Applies the twist and the gun turn after EMF copies a stored pose onto the model.
      *
      * @param pose   the copied pose
      * @param model  the model the pose was copied to
@@ -48,11 +53,12 @@ public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
     @Override
     public void onBipedPoseCopyEnd(EMFBipedPose pose, HumanoidModel<?> model, boolean paused) {
         if (model instanceof PlayerModel<?> player) {
-            UpperBodyTwist.reapplyOn(player.body, player.rightArm, player.leftArm, player.head,
+            NoGunTwist.reapplyOn(player.body, player.rightArm, player.leftArm, player.head,
                     player.jacket, player.rightSleeve, player.leftSleeve, player.hat);
-        } else {
-            UpperBodyTwist.reapplyOn(model.body, model.rightArm, model.leftArm, model.head, null, null, null, model.hat);
-        }
+            EmfGunTwist.afterPoseCopy(player.body);
+        } else
+            NoGunTwist.reapplyOn(model.body, model.rightArm, model.leftArm, model.head, null, null, null, model.hat);
+
         ModLogger.debugOnce("upper body twist applied after an EMF biped pose copy");
     }
 

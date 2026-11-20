@@ -1,4 +1,4 @@
-package net.flameslight.tacz_noendman_tweaks.mixin.core;
+package net.flameslight.tacz_noendman_tweaks.mixin;
 
 import net.flameslight.tacz_noendman_tweaks.types.DataHolderCache;
 import net.minecraftforge.common.capabilities.CapabilityProvider;
@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Clears an entity's cached TACZ DataHolder capability (fix 3) whenever Forge invalidates or revives its
+ * Clears an entity's cached TACZ DataHolder capability whenever Forge invalidates or revives its
  * capabilities. While capabilities are invalid, Forge returns an empty result, and the next lookup then does
  * the full original lookup again, so the cache never returns a holder TACZ's own code would not.
  */
