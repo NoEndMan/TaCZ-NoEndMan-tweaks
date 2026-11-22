@@ -3,13 +3,14 @@ package net.flameslight.tacz_noendman_tweaks.events;
 import net.flameslight.tacz_noendman_tweaks.TaczNoEndManTweaks;
 import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfCompat;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
-import net.flameslight.tacz_noendman_tweaks.config.CommonConfig;
-import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczCompat;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczEarlyStencil;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczFirstEquipPreRender;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczFirstEquipWarmUp;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -18,23 +19,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
  */
 @Mod.EventBusSubscriber(modid = TaczNoEndManTweaks.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvents {
-    /**
-     * Config load, reload and unload.
-     *
-     * @param event any mod config event
-     */
-    @SubscribeEvent
-    public static void onConfigLoaded(ModConfigEvent event) {
-        boolean unloading = event instanceof ModConfigEvent.Unloading;
-        CommonConfig.onConfigLoaded(event.getConfig(), unloading);
-        ClientConfig.onConfigLoaded(event.getConfig(), unloading);
-    }
-
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         ModList mods = ModList.get();
-        ModLogger.debug("Integrations: Entity Model Features {}, Player Animator {}",
-                mods.isLoaded(EmfCompat.MOD_ID), mods.isLoaded(PlayerAnimatorCompat.MOD_ID));
+        ModLogger.debug("Integrations: TACZ {}, Entity Model Features {}, Player Animator {}",
+                mods.isLoaded(TaczCompat.MOD_ID), mods.isLoaded(EmfCompat.MOD_ID), mods.isLoaded(PlayerAnimatorCompat.MOD_ID));
     }
 
     /**
@@ -46,5 +35,11 @@ public class ModEvents {
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(EmfCompat::registerHook);
         event.enqueueWork(PlayerAnimatorCompat::registerLayers);
+
+        if (TaczCompat.LOADED) {
+            TaczFirstEquipWarmUp.register();
+            TaczFirstEquipPreRender.register();
+            event.enqueueWork(TaczEarlyStencil::enable);
+        }
     }
 }

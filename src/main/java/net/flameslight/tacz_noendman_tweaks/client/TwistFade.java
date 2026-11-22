@@ -113,9 +113,6 @@ public final class TwistFade {
      * @return true when the twist is allowed
      */
     private static boolean isAllowed(AbstractClientPlayer player) {
-        if (!ClientConfig.isWithoutGun())
-            return false;
-
         boolean riding = player.getVehicle() != null;
 
         if (!ClientConfig.isEnabledFor(riding) || (!riding && !TurnMathUtils.isUpright(player)))

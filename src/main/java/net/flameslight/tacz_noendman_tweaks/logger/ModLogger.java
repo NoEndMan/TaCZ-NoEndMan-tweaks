@@ -5,9 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -16,7 +16,11 @@ import java.util.function.Supplier;
 public class ModLogger {
     private static final Logger LOGGER = LoggerFactory.getLogger("tacz_noendman_tweaks");
 
-    private static final Set<String> LOGGED_ONCE = ConcurrentHashMap.newKeySet();
+    /*
+        Messages debugOnce already logged. debugOnce runs on the server and render threads, so the set is never
+        changed: each new message publishes a new immutable copy (rare), and reads (every later call) need no lock.
+     */
+    private static volatile Set<String> loggedOnce = null;
 
     public static void info(String message, Object ... args) {
         LOGGER.info(buildMessageLog(message), args);
@@ -35,8 +39,26 @@ public class ModLogger {
      *
      */
     public static void debugOnce(String message) {
-        if (CommonConfig.isDebugMod() && LOGGED_ONCE.add(message))
-            LOGGER.info(buildMessageLog("[DEBUG]: " + message));
+        if (!CommonConfig.isDebugMod())
+            return;
+
+        Set<String> logged = loggedOnce;
+
+        if (logged != null && logged.contains(message))
+            return;
+
+        synchronized (ModLogger.class) {
+            logged = loggedOnce;
+
+            if (logged != null && logged.contains(message))
+                return;
+
+            Set<String> next = logged == null ? new HashSet<>() : new HashSet<>(logged);
+            next.add(message);
+            loggedOnce = Set.copyOf(next);
+        }
+
+        LOGGER.info(buildMessageLog("[DEBUG]: " + message));
     }
 
     /**

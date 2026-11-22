@@ -10,22 +10,14 @@ import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
  */
 public final class PlayerAnimationDebug {
 
-    /*
-        The local player's active layers at the last check, for the debug log.
-     */
-    private static String lastActiveLayers = "";
-
     /**
-     * Logs the local player's active layers in debug mode when they change.
+     * Logs the local player's active layers in debug mode, once per game session for each distinct set of layers.
      *
      * @param active the active layers, empty when none
      */
     static void logActiveLayers(String active) {
-        if (!active.equals(lastActiveLayers)) {
-            lastActiveLayers = active;
-            ModLogger.debug("non-TACZ Player Animator layers active on the local player: {}",
-                    active.isEmpty() ? "none" : active);
-        }
+        if (!active.isEmpty())
+            ModLogger.debugOnce("non-TACZ Player Animator layers active on the local player: " + active);
     }
 
     /**

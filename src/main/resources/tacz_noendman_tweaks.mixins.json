@@ -2,6 +2,7 @@
   "required": false,
   "minVersion": "0.8",
   "package": "net.flameslight.tacz_noendman_tweaks.mixin",
+  "plugin": "net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "tacz_noendman_tweaks.refmap.json",
   "mixins": [
@@ -13,6 +14,10 @@
     "tacz.LivingEntitySprintMixin",
     "tacz.SyncedDataKeyMixin",
     "tacz.SyncedEntityDataMixin"
+  ],
+  "client": [
+    "tacz.client.ClientAttachmentIndexAccessor",
+    "tacz.client.GunDisplayInstanceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

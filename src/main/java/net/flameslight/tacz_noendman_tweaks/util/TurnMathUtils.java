@@ -1,5 +1,6 @@
 package net.flameslight.tacz_noendman_tweaks.util;
 
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczCompat;
 import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
 import net.flameslight.tacz_noendman_tweaks.config.TurnSettings;
 import net.minecraft.client.model.geom.PartPose;
@@ -130,15 +131,19 @@ public final class TurnMathUtils {
     }
 
     /**
-     * Tells whether the config allows the gun turn for the entity right now.
+     * Tells whether the gun turn applies to the entity right now: TACZ installed, enableTurnWithGunFix on, and the
+     * twist allowed for its situation.
      *
      * @param entity the entity
      * @return true when the turn applies to the entity right now
      */
     public static boolean isGunTurnEnabled(Entity entity) {
+        if (!TaczCompat.LOADED || !ClientConfig.isTurnWithGunFix())
+            return false;
+
         return entity.getVehicle() != null
                 ? ClientConfig.isOnVehicle()
-                : ClientConfig.isInGeneral() && isUpright(entity);
+                : ClientConfig.isOutsideVehicle() && isUpright(entity);
     }
 
     /**
@@ -155,15 +160,16 @@ public final class TurnMathUtils {
             float max = ClientConfig.onVehicleMaxTurnDegrees();
             return Mth.clamp(yaw, -max, max);
         }
-        float max = ClientConfig.generalMaxTurnDegrees();
+        float max = ClientConfig.outsideVehicleMaxTurnDegrees();
         return Mth.clamp(Mth.clamp(yaw, -TurnSettings.TACZ_MAX_DEGREES, TurnSettings.TACZ_MAX_DEGREES), -max, max);
     }
 
     /**
-     * Tells whether the entity stands or crouches.
+     * Tells whether the entity is upright: the standing or crouching pose, which also covers walking, running and
+     * creative flying, but not swimming, elytra flying or sleeping.
      *
      * @param entity the entity
-     * @return true when standing or crouching
+     * @return true in the standing or crouching pose
      */
     public static boolean isUpright(Entity entity) {
         Pose pose = entity.getPose();

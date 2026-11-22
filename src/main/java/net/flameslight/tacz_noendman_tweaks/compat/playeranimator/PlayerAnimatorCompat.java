@@ -1,6 +1,7 @@
 package net.flameslight.tacz_noendman_tweaks.compat.playeranimator;
 
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.layers.OutsideVehicleGunTwistLayer;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczCompat;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraftforge.fml.ModList;
 
@@ -17,10 +18,10 @@ public final class PlayerAnimatorCompat {
     public static final boolean LOADED = ModList.get().isLoaded(MOD_ID);
 
     /**
-     * Registers this mod's Player Animator layers, when Player Animator is installed.
+     * Registers this mod's Player Animator layers, when Player Animator and TACZ are installed.
      */
     public static void registerLayers() {
-        if (LOADED)
+        if (LOADED && TaczCompat.LOADED)
             OutsideVehicleGunTwistLayer.register();
     }
 
@@ -28,10 +29,10 @@ public final class PlayerAnimatorCompat {
      * Tells whether TACZ animates the player's gun holding pose.
      *
      * @param player the player
-     * @return true while a gun pose plays, false without Player Animator
+     * @return true while a gun pose plays, false without Player Animator or TACZ
      */
     public static boolean isTaczGunPose(AbstractClientPlayer player) {
-        return LOADED && PlayerAnimatorAccessor.isTaczGunPose(player);
+        return LOADED && TaczCompat.LOADED && PlayerAnimatorAccessor.isTaczGunPose(player);
     }
 
     /**

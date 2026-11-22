@@ -48,6 +48,11 @@ minecraft {
     }
 }
 
+configurations {
+    // The plain TACZ jar, only read for the LuaJ jars nested in it (TACZ ships LuaJ through Jar-in-Jar).
+    taczJar { transitive = false }
+}
+
 repositories {
     // CurseForge mods as Maven artifacts: curse.maven:<slug>-<projectId>:<fileId>.
     maven {
@@ -63,6 +68,12 @@ dependencies {
 
     // TACZ 1.2.0-hotfix (required): compiled against and present in dev runs.
     implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:${tacz_file_id}")
+
+    // LuaJ, compile only: provided at runtime by TACZ's Jar-in-Jar, used by the first equip warm-up.
+    taczJar "curse.maven:timeless-and-classics-zero-1028108:${tacz_file_id}"
+    compileOnly files({
+        zipTree(configurations.taczJar.singleFile).matching { include 'META-INF/jarjar/luaj-*.jar' }.files
+    })
 
     // Optional integrations: compile only.
     compileOnly fg.deobf("curse.maven:entity-model-features-844662:${emf_file_id}")

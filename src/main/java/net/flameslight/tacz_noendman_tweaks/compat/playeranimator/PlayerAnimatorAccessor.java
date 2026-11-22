@@ -5,6 +5,8 @@ import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.core.util.Pair;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.layers.OutsideVehicleGunTwistLayer;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczCompat;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczLayers;
 import net.flameslight.tacz_noendman_tweaks.config.CommonConfig;
 import net.flameslight.tacz_noendman_tweaks.util.ReflectionUtils;
 import net.minecraft.client.Minecraft;
@@ -45,10 +47,11 @@ public final class PlayerAnimatorAccessor {
             return true;
 
         PlayerAnimationAccess.PlayerAssociatedAnimationData data = PlayerAnimationAccess.getPlayerAssociatedData(player);
-        IAnimation lower = taczLayer(data, com.tacz.guns.compat.playeranimator.PlayerAnimatorCompat.LOWER_ANIMATION);
-        IAnimation loopUpper = taczLayer(data, com.tacz.guns.compat.playeranimator.PlayerAnimatorCompat.LOOP_UPPER_ANIMATION);
-        IAnimation onceUpper = taczLayer(data, com.tacz.guns.compat.playeranimator.PlayerAnimatorCompat.ONCE_UPPER_ANIMATION);
-        IAnimation rotation = taczLayer(data, com.tacz.guns.compat.playeranimator.PlayerAnimatorCompat.ROTATION_ANIMATION);
+        boolean tacz = TaczCompat.LOADED;
+        IAnimation lower = tacz ? taczLayer(data, TaczLayers.lower()) : null;
+        IAnimation loopUpper = tacz ? taczLayer(data, TaczLayers.loopUpper()) : null;
+        IAnimation onceUpper = tacz ? taczLayer(data, TaczLayers.onceUpper()) : null;
+        IAnimation rotation = tacz ? taczLayer(data, TaczLayers.rotation()) : null;
         boolean debug = CommonConfig.isDebugMod() && player == Minecraft.getInstance().player;
         StringBuilder active = debug ? new StringBuilder() : null;
         boolean animating = false;
@@ -90,7 +93,7 @@ public final class PlayerAnimatorAccessor {
      */
     static boolean isTaczGunPose(AbstractClientPlayer player) {
         try {
-            IAnimation rotation = taczLayer(PlayerAnimationAccess.getPlayerAssociatedData(player), com.tacz.guns.compat.playeranimator.PlayerAnimatorCompat.ROTATION_ANIMATION);
+            IAnimation rotation = taczLayer(PlayerAnimationAccess.getPlayerAssociatedData(player), TaczLayers.rotation());
             return rotation != null && rotation.isActive();
         } catch (IllegalArgumentException e) {
             return false;

@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
- * Player Animator layer that, while standing or crouching with a gun, keeps only the part of TACZ's whole-player turn
+ * Player Animator layer that, on foot in an upright pose with a gun, keeps only the part of TACZ's whole-player turn
  * past the twist limit, so the legs follow only once the upper body twist (EmfGunTwist) reached its limit.
  */
 public final class OutsideVehicleGunTwistLayer implements IAnimation {
@@ -43,7 +43,7 @@ public final class OutsideVehicleGunTwistLayer implements IAnimation {
     }
 
     /**
-     * Tells whether the layer is active: on foot with a gun and enableInGeneral on.
+     * Tells whether the layer is active: on foot with a gun, with enableTurnWithGunFix and enableOutsideVehicle on.
      *
      * @return true when active
      */
