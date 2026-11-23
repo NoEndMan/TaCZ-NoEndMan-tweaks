@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Clears an entity's cached TACZ DataHolder capability whenever Forge invalidates or revives its
- * capabilities. While capabilities are invalid, Forge returns an empty result, and the next lookup then does
- * the full original lookup again, so the cache never returns a holder TACZ's own code would not.
+ * Clears an entity's cached TaCZ DataHolder (SyncedEntityDataMixin) when Forge invalidates or revives its capabilities.
+ * Needed for this mod TaCZ optimizations that uses capabilities: TaCZ leaves their LazyOptional valid on purpose (to copy their data on respawn),
+ * so the cache would still return the holder where TaCZ's own lookup returns nothing.
  */
 @Mixin(value = CapabilityProvider.class, remap = false)
 public abstract class CapabilityProviderMixin {

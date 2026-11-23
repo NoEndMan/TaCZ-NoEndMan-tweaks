@@ -3,7 +3,7 @@ package net.flameslight.tacz_noendman_tweaks.config;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
- * The mod's client config: the third person upper body twist options, the EMF player animation fixes and the TACZ
+ * The mod's client config: the third person upper body twist options, the EMF player animation fixes and the TaCZ
  * tweaks.
  */
 public final class ClientConfig {
@@ -116,8 +116,8 @@ public final class ClientConfig {
                 .defineInRange("outsideVehicleMaxTurnDegrees", DEFAULT_OUTSIDE_VEHICLE_MAX, 0.0, TurnSettings.TACZ_MAX_DEGREES);
 
         TURN_WITH_GUN_FIX = builder
-                .comment("Requires TACZ installed on client side. If enabled, turning with guns would follow upper body twist rules,",
-                        "instead of TACZ turning the whole body. When disabled, TACZ's own gun pose turning is unchanged.",
+                .comment("Requires TaCZ installed on client side. If enabled, turning with guns would follow upper body twist rules,",
+                        "instead of TaCZ turning the whole body. When disabled, TaCZ's own gun pose turning is unchanged.",
                         "Default value: " + DEFAULT_TURN_WITH_GUN_FIX)
                 .define("enableTurnWithGunFix", DEFAULT_TURN_WITH_GUN_FIX);
 
@@ -140,13 +140,13 @@ public final class ClientConfig {
 
         builder.pop();
 
-        builder.comment("TACZ optimizations. Requires TACZ installed on client side.",
-                        "This mod's other TACZ optimizations do not affect gameplay, so they are always on and not toggleable.")
+        builder.comment("TaCZ optimizations. Requires TaCZ installed on client side.",
+                        "This mod's other TaCZ optimizations do not affect gameplay, so they are always on and not toggleable.")
                 .push("tacz_optimizations");
 
         FIRST_EQUIP_WARM_UP = builder
-                .comment("If enabled, ;owers the lag spike of the first gun equip per game launch: Once per game launch, after ",
-                        "joining a world, prepares TACZ's Lua script code in the background, then draws the first person arms, ",
+                .comment("If enabled, lowers the lag spike of the first gun equip per game launch: Once per game launch, after ",
+                        "joining a world, prepares TaCZ's Lua script code in the background, then draws the first person arms, ",
                         "one gun model, one attachment of each type and, while a shader pack is active, one third person gun once, ",
                         "all hidden, so the first equip of any gun does not run that code for the first time.",
                         "Costs a few hundred milliseconds spread over the first seconds after joining a world.",
@@ -196,7 +196,7 @@ public final class ClientConfig {
     /**
      * Reads enableTurnWithGunFix.
      *
-     * @return true when the upper body also turns while holding a TACZ gun
+     * @return true when the upper body also turns while holding a TaCZ gun
      */
     public static boolean isTurnWithGunFix() {
         return SPEC.isLoaded() ? TURN_WITH_GUN_FIX.get() : DEFAULT_TURN_WITH_GUN_FIX;

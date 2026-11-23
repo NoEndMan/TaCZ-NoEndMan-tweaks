@@ -1,44 +1,44 @@
-package net.flameslight.tacz_noendman_tweaks.compat.tacz;
+package net.flameslight.tacz_noendman_tweaks.compat.tacz.playeranimator;
 
 import com.tacz.guns.compat.playeranimator.PlayerAnimatorCompat;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Ids of TACZ's Player Animator layers. Only call it when TaczCompat.LOADED is true.
+ * Ids of TaCZ's Player Animator layers. Only call it when TaCZCompat.LOADED is true.
  */
-public final class TaczLayers {
+public final class TaCZLayers {
 
     /**
-     * Returns the id of TACZ's lower body layer.
+     * Returns the id of TaCZ's lower body layer.
      *
-     * @return the id, may be null before TACZ registered it
+     * @return the id, may be null before TaCZ registered it
      */
     public static ResourceLocation lower() {
         return PlayerAnimatorCompat.LOWER_ANIMATION;
     }
 
     /**
-     * Returns the id of TACZ's looping upper body layer.
+     * Returns the id of TaCZ's looping upper body layer.
      *
-     * @return the id, may be null before TACZ registered it
+     * @return the id, may be null before TaCZ registered it
      */
     public static ResourceLocation loopUpper() {
         return PlayerAnimatorCompat.LOOP_UPPER_ANIMATION;
     }
 
     /**
-     * Returns the id of TACZ's one-shot upper body layer.
+     * Returns the id of TaCZ's one-shot upper body layer.
      *
-     * @return the id, may be null before TACZ registered it
+     * @return the id, may be null before TaCZ registered it
      */
     public static ResourceLocation onceUpper() {
         return PlayerAnimatorCompat.ONCE_UPPER_ANIMATION;
     }
 
     /**
-     * Returns the id of TACZ's gun pose rotation layer.
+     * Returns the id of TaCZ's gun pose rotation layer.
      *
-     * @return the id, may be null before TACZ registered it
+     * @return the id, may be null before TaCZ registered it
      */
     public static ResourceLocation rotation() {
         return PlayerAnimatorCompat.ROTATION_ANIMATION;

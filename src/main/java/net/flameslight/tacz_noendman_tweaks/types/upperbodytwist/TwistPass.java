@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * One twisted render of one player, used by UpperBodyTwist.
+ * One twisted render of one player, used by NoGunTwist and GunTwist.
  */
 public final class TwistPass {
 

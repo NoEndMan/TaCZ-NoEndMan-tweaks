@@ -13,12 +13,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Two additions to TACZ's SyncedDataKey.
+ * Two additions to TaCZ's SyncedDataKey to reduce its runtime operations. TaCZ looks a key up in hash sets and maps
+ * on every read and write of an entity's synced data (aiming, reloading and so on), constantly and for every entity.
+ * The additions keep the same results as TaCZ's own code, so there is no gameplay impact:
  * <ul>
- *     <li>Fix 1: hashCode returns a cached copy of pairKey.hashCode(). TACZ builds pairKey with Pair.of, an
- *     ImmutablePair of two ResourceLocations, and the field is final, so the value never changes.</li>
- *     <li>Fix 2: the "registered" mark. It is set only by SyncedEntityDataMixin, right after TACZ registered
- *     the key.</li>
+ *     <li>HashCode is computed once and cached. TaCZ recomputes it from pairKey (an ImmutablePair of two
+ *     ResourceLocations) on every call, although the field is final and the value never changes.</li>
+ *     <li>A "registered" mark, set only by SyncedEntityDataMixin right after TaCZ registered the key, so
+ *     SyncedEntityDataMixin can skip TaCZ's registration lookup for it.</li>
  * </ul>
  */
 @Mixin(value = SyncedDataKey.class, remap = false)
@@ -42,7 +44,7 @@ public abstract class SyncedDataKeyMixin implements RegisteredKeyFlag {
     private boolean tacz_noendman$hashIsZero;
 
     /**
-     * Returns the cached hash code, computing it from pairKey on first use like TACZ's own hashCode.
+     * Returns the cached hash code, computing it from pairKey on first use like TaCZ's own hashCode.
      *
      * @param cir the callback, set to the hash code
      */
@@ -63,7 +65,7 @@ public abstract class SyncedDataKeyMixin implements RegisteredKeyFlag {
     /**
      * Tells whether this exact key object was registered.
      *
-     * @return true after TACZ's registerDataKey accepted this key
+     * @return true after TaCZ's registerDataKey accepted this key
      */
     @Override
     public boolean tacz_noendman$isRegistered() {

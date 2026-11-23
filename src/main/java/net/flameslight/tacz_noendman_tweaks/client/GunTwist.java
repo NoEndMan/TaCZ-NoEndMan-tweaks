@@ -27,7 +27,8 @@ public final class GunTwist {
     private static final Deque<GunTurnEntry> ACTIVE = new ArrayDeque<>();
 
     /**
-     * Applies the gun twist to a player model that was just set up, and records the render for the EMF hooks.
+     * Applies the gun twist to a player model that was just set up, and records the render for the EMF hooks. Only with
+     * Player Animator, which plays TaCZ's gun pose.
      *
      * @param player      the player being drawn
      * @param model       the player's model, already set up for this frame

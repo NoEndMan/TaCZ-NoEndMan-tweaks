@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Detects Iris re-attaching the main depth texture to its framebuffers, for the DH depth guard. Only applies with
- * Oculus.
+ * both Oculus and Distant Horizons (OculusDhMixinPlugin).
  */
 @Pseudo
 @Mixin(targets = "net.irisshaders.iris.targets.RenderTargets", remap = false)

@@ -5,14 +5,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 /**
- * Reads whether TACZ finished loading an attachment's models, without waiting for it (TACZ's getAttachmentModel blocks
+ * Reads whether TaCZ finished loading an attachment's models, without waiting for it (TaCZ's getAttachmentModel blocks
  * until the models are loaded). Used by the first equip pre-render.
  */
 @Mixin(value = ClientAttachmentIndex.class, remap = false)
 public interface ClientAttachmentIndexAccessor {
 
     /**
-     * Reads TACZ's modelsLoaded flag.
+     * Reads TaCZ's modelsLoaded flag.
      *
      * @return true when the attachment's models are loaded
      */
@@ -20,7 +20,7 @@ public interface ClientAttachmentIndexAccessor {
     boolean tacz_noendman$isModelsLoaded();
 
     /**
-     * Reads TACZ's modelsLoadFailed flag.
+     * Reads TaCZ's modelsLoadFailed flag.
      *
      * @return true when loading the attachment's models failed
      */

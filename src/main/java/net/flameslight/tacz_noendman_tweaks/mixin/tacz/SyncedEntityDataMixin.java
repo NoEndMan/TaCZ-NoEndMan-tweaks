@@ -21,13 +21,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Set;
 
 /**
- * Fast paths in TACZ's synced entity data registry. Both give exactly the results of TACZ's own code.
+ * Fast paths in TaCZ's synced entity data registry, written to reduce TaCZ runtime operations. TaCZ's get and set
+ * run constantly for every entity with gun data, and each call checks that the key is registered and finds the
+ * entity's DataHolder through Forge's capability system.
+ * Both steps optimize that and gives exactly the results of TaCZ's own code:
  * <ul>
- *     <li>Fix 2: the registration check in get and set skips the hash set lookup for key objects
- *     marked as registered. Unmarked keys still go through the original check.</li>
- *     <li>Fix 3: getDataHolder reuses the entity's cached capability result instead of scanning all
- *     attached capabilities. The cache is refilled whenever it is empty or no longer present, and cleared
- *     whenever Forge invalidates or revives the entity's capabilities.</li>
+ *     <li>The registration check in get and set skips the hash set lookup for key objects marked as registered.
+ *     Unmarked keys still go through the original check, so unregistered keys fail as before.</li>
+ *     <li>GetDataHolder reuses the entity's cached capability result (stored by EntityMixin) instead of scanning all
+ *     attached capabilities. The cache is refilled whenever it is empty or no longer present, and
+ *     CapabilityProviderMixin clears it whenever Forge invalidates or revives the entity's capabilities.</li>
  * </ul>
  */
 @Mixin(value = SyncedEntityData.class, remap = false)
@@ -38,7 +41,7 @@ public abstract class SyncedEntityDataMixin {
     private Set<SyncedDataKey<?, ?>> registeredDataKeys;
 
     /**
-     * Marks a key as registered once TACZ accepted it. TACZ throws before returning when it rejects a key,
+     * Marks a key as registered once TaCZ accepted it. TaCZ throws before returning when it rejects a key,
      * so reaching RETURN means the key is now in registeredDataKeys, and keys are never removed.
      *
      * @param key the key that was registered
@@ -51,11 +54,11 @@ public abstract class SyncedEntityDataMixin {
 
     /**
      * Replaces the registration check in get and set. A marked key is known to be in the set.
-     * Any other call keeps TACZ's original lookup.
+     * Any other call keeps TaCZ's original lookup.
      *
-     * @param set the set TACZ checks
-     * @param key the key TACZ looks for
-     * @return whether the set contains the key, the same answer as TACZ's own check
+     * @param set the set TaCZ checks
+     * @param key the key TaCZ looks for
+     * @return whether the set contains the key, the same answer as TaCZ's own check
      */
     @Redirect(method = {"get", "set"}, at = @At(value = "INVOKE", target = "Ljava/util/Set;contains(Ljava/lang/Object;)Z"))
     private boolean tacz_noendman$fastRegistrationCheck(Set<?> set, Object key) {

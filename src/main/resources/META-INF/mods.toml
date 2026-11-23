@@ -23,7 +23,7 @@ description='''${mod_description}'''
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
-# Optional: the TACZ performance tweaks and the gun upper body twist apply only with TACZ.
+# Optional: the TaCZ performance tweaks and the gun upper body twist apply only with TaCZ.
 [[dependencies.${mod_id}]]
     modId="tacz"
     mandatory=false

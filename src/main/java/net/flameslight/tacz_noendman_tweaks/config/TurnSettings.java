@@ -5,7 +5,7 @@ package net.flameslight.tacz_noendman_tweaks.config;
  */
 public final class TurnSettings {
 
-    /** TACZ's own hard limit, in degrees, for the head-to-body angle it turns the player by. */
+    /** TaCZ's own hard limit, in degrees, for the head-to-body angle it turns the player by. */
     public static final float TACZ_MAX_DEGREES = 85.0F;
 
     /** Vanilla's own hard limit, in degrees, for the head-to-body angle while riding a living mount. */

@@ -88,6 +88,6 @@ public class ModLogger {
     }
 
     private static String buildMessageLog(String message) {
-        return MessageFormat.format("{0}: {1}", "Tacz NoEndMan Tweaks-logger", message);
+        return MessageFormat.format("{0}: {1}", "TaCZ NoEndMan Tweaks-logger", message);
     }
 }

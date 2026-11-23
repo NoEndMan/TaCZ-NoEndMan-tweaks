@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Forces Oculus to re-attach the Distant Horizons depth texture to its DH framebuffers after Iris replaced it with
- * the main depth. Only applies with Oculus.
+ * the main depth. Only applies with both Oculus and Distant Horizons (OculusDhMixinPlugin).
  *
  * This code was written in order to fix a bug when certain events (like guns with sight attachment) causing
  * DH mod to break and load its load in-front of rendered chunks.

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Fix 6. TACZ's gatherDirty streams the data map through two filters into a new list. This builds the same
+ * TaCZ's gatherDirty streams the data map through two filters into a new list. This builds the same
  * ArrayList, with the same entries in the same order, using a plain loop.
  */
 @Mixin(value = DataHolder.class, remap = false)
@@ -25,7 +25,7 @@ public abstract class DataHolderMixin {
     public Map<SyncedDataKey<?, ?>, DataEntry<?, ?>> dataMap;
 
     /**
-     * Collects the dirty entries whose key is synced, like TACZ's stream does.
+     * Collects the dirty entries whose key is synced, like TaCZ's stream does.
      *
      * @param cir the callback, set to the collected list
      */

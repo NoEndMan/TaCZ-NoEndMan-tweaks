@@ -22,15 +22,15 @@ import org.luaj.vm2.lib.jse.JseStringLib;
 import java.util.ArrayList;
 
 /**
- * Warms up, once per game session and off the render thread, TACZ's Lua path that runs for the first time on the
- * first gun equip: LuaJ's classes and its reflection tables for TACZ's script classes. Both are shared by every gun's
+ * Warms up, once per game session and off the render thread, TaCZ's Lua path that runs for the first time on the
+ * first gun equip: LuaJ's classes and its reflection tables for TaCZ's script classes. Both are shared by every gun's
  * scripts and kept until the game closes, so the real first equip finds them ready. Client only, only call when
- * TaczCompat.LOADED is true.
+ * TaCZCompat.LOADED is true.
  */
-public final class TaczFirstEquipWarmUp {
+public final class TaCZFirstEquipWarmUp {
 
     /*
-        A Lua function with the kinds of operations TACZ's gun scripts use, run once. Indexing a method of the TACZ
+        A Lua function with the kinds of operations TaCZ's gun scripts use, run once. Indexing a method of the TaCZ
         objects builds LuaJ's reflection table for their class, without calling the method.
      */
     private static final String LUA_SCRIPT = """
@@ -55,7 +55,7 @@ public final class TaczFirstEquipWarmUp {
             end
             """;
 
-    /* Property name passed to the Lua function, as TACZ's modify_cached_property gets one. */
+    /* Property name passed to the Lua function, as TaCZ's modify_cached_property gets one. */
     private static final LuaValue NAME = LuaValue.valueOf("damage");
 
     /*
@@ -68,14 +68,11 @@ public final class TaczFirstEquipWarmUp {
      */
     private static Thread thread = null;
 
-    private TaczFirstEquipWarmUp() {
-    }
-
     /**
      * Registers the world join listener. Called once from client setup.
      */
     public static void register() {
-        MinecraftForge.EVENT_BUS.addListener(TaczFirstEquipWarmUp::onLoggingIn);
+        MinecraftForge.EVENT_BUS.addListener(TaCZFirstEquipWarmUp::onLoggingIn);
     }
 
     /**
@@ -87,7 +84,7 @@ public final class TaczFirstEquipWarmUp {
         if (done || !ClientConfig.isFirstEquipWarmUp() || (thread != null && thread.isAlive()))
             return;
 
-        thread = new Thread(TaczFirstEquipWarmUp::run, "tacz_noendman first equip warm-up");
+        thread = new Thread(TaCZFirstEquipWarmUp::run, "tacz_noendman first equip warm-up");
         thread.setDaemon(true);
         thread.setPriority(Thread.MIN_PRIORITY);
         thread.start();
@@ -111,9 +108,9 @@ public final class TaczFirstEquipWarmUp {
     }
 
     /**
-     * Runs a Lua function once in a private LuaJ Globals set up like TACZ's script globals, with fresh TACZ script
-     * objects, so LuaJ's classes load and its reflection tables for TACZ's script classes are built. Touches no game
-     * state and none of TACZ's own scripts or globals.
+     * Runs a Lua function once in a private LuaJ Globals set up like TaCZ's script globals, with fresh TaCZ script
+     * objects, so LuaJ's classes load and its reflection tables for TaCZ's script classes are built. Touches no game
+     * state and none of TaCZ's own scripts or globals.
      */
     private static void warmUpLua() {
         Globals globals = new Globals();
@@ -128,7 +125,7 @@ public final class TaczFirstEquipWarmUp {
 
         LuaValue function = globals.load(LUA_SCRIPT, "tacz_noendman_warm_up").call();
 
-        /* The same coercions TACZ uses: its data script gets a ModernKineticGunScriptAPI, its animation script a
+        /* The same coercions TaCZ uses: its data script gets a ModernKineticGunScriptAPI, its animation script a
            GunAnimationStateContext. Both constructors only set plain fields. */
         LuaValue api = CoerceJavaToLua.coerce(new ModernKineticGunScriptAPI());
         LuaValue context = CoerceJavaToLua.coerce(new GunAnimationStateContext());

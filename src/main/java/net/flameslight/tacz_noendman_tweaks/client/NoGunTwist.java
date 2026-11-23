@@ -59,7 +59,7 @@ public final class NoGunTwist {
             return;
         }
         if (PlayerAnimatorCompat.isTaczGunPose(player)) {
-            // TACZ's gun pose is turned by EmfGunTwist.
+            // TaCZ's gun pose is turned by GunTwist.
             return;
         }
         // Right after a gun pose ends, start from the gun pose's turn and hand over to the twist.

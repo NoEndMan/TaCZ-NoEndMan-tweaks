@@ -47,12 +47,12 @@ import java.util.Optional;
 
 /**
  * Pre-renders, once per game session on the render thread, the shared first equip render code, hidden: the first
- * person arms, TACZ's full first person gun model render of one sample gun, one attachment of each type, and, only
+ * person arms, TaCZ's full first person gun model render of one sample gun, one attachment of each type, and, only
  * while a shader pack is active, the sample gun's third person static mesh (drawn by the shadow pass). The real first
  * equip of any gun then finds that code, its classes and the mods' caches ready. Client only, only call when
- * TaczCompat.LOADED is true.
+ * TaCZCompat.LOADED is true.
  */
-public final class TaczFirstEquipPreRender {
+public final class TaCZFirstEquipPreRender {
 
     /** Client ticks between two checks of a waited for model or of the shader pack state. */
     private static final int CHECK_INTERVAL_TICKS = 20;
@@ -60,7 +60,7 @@ public final class TaczFirstEquipPreRender {
     /** Client ticks the arm pre-render waits at most for the player's skin (10 seconds). */
     private static final int SKIN_WAIT_LIMIT_TICKS = 200;
 
-    /** Tries of the third person pre-render while TACZ still builds the static mesh (one per client tick). */
+    /** Tries of the third person pre-render while TaCZ still builds the static mesh (one per client tick). */
     private static final int THIRD_PERSON_MAX_TRIES = 40;
 
     /*
@@ -81,8 +81,8 @@ public final class TaczFirstEquipPreRender {
     private static boolean modelChecked = false;
 
     /*
-        Client thread only: the gun model pre-render's sample gun (its stack and display), picked once, and TACZ's
-        resource revision when it was picked (a resource reload replaces TACZ's guns, so it is picked again after one).
+        Client thread only: the gun model pre-render's sample gun (its stack and display), picked once, and TaCZ's
+        resource revision when it was picked (a resource reload replaces TaCZ's guns, so it is picked again after one).
      */
     private static ItemStack sampleStack = null;
     private static GunDisplayInstance sampleDisplay = null;
@@ -113,15 +113,15 @@ public final class TaczFirstEquipPreRender {
     /* The client tick listener, registered only while a pre-render is still due. */
     private static final PreRenderTick TICK = new PreRenderTick();
 
-    private TaczFirstEquipPreRender() {
+    private TaCZFirstEquipPreRender() {
     }
 
     /**
      * Registers the world join and leave listeners. Called once from client setup.
      */
     public static void register() {
-        MinecraftForge.EVENT_BUS.addListener(TaczFirstEquipPreRender::onLoggingIn);
-        MinecraftForge.EVENT_BUS.addListener(TaczFirstEquipPreRender::onLoggingOut);
+        MinecraftForge.EVENT_BUS.addListener(TaCZFirstEquipPreRender::onLoggingIn);
+        MinecraftForge.EVENT_BUS.addListener(TaCZFirstEquipPreRender::onLoggingOut);
     }
 
     /**
@@ -214,7 +214,7 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Renders both first person arms through TACZ's own arm render, like its gun arm renderers do, into buffers that
+     * Renders both first person arms through TaCZ's own arm render, like its gun arm renderers do, into buffers that
      * are never drawn.
      *
      * @param player     the local player
@@ -251,7 +251,7 @@ public final class TaczFirstEquipPreRender {
             pickSampleGun(player);
             sampleRevision = revision;
 
-            // TACZ has no gun at all (its gun list is loaded before joining), so there is nothing to pre-render.
+            // TaCZ has no gun at all (its gun list is loaded before joining), so there is nothing to pre-render.
             if (sampleDisplay == null) {
                 ModLogger.debug("pre-render: no TACZ gun found, gun pre-renders skipped");
                 modelDone = true;
@@ -278,9 +278,9 @@ public final class TaczFirstEquipPreRender {
 
     /**
      * Picks the sample gun, once: a carried gun with a loaded model, else any registered gun with a loaded model, else
-     * a carried gun (or any registered gun) whose model TACZ is then asked to load in the background. Never waits for a
-     * load (TACZ's getGunModel would block until the model is loaded). Sets sampleStack and sampleDisplay, or leaves
-     * them null when TACZ has no gun at all.
+     * a carried gun (or any registered gun) whose model TaCZ is then asked to load in the background. Never waits for a
+     * load (TaCZ's getGunModel would block until the model is loaded). Sets sampleStack and sampleDisplay, or leaves
+     * them null when TaCZ has no gun at all.
      *
      * @param player the local player
      */
@@ -331,7 +331,7 @@ public final class TaczFirstEquipPreRender {
 
         setSample(fallbackStack, fallbackDisplay);
 
-        /* Starts TACZ's own background load. Only with TACZ's lazy loading on: without it TACZ loads every model at
+        /* Starts TaCZ's own background load. Only with TaCZ's lazy loading on: without it TaCZ loads every model at
            resource load, and its warmUpModel would load on this thread instead. */
         if (ResourceConfig.ENABLE_LAZY_CLIENT_ASSET_LOAD.get())
             fallbackDisplay.warmUpModel();
@@ -357,7 +357,7 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Reads whether TACZ finished loading a gun's model, without waiting.
+     * Reads whether TaCZ finished loading a gun's model, without waiting.
      *
      * @param display the gun's display
      * @return true when its model is loaded
@@ -367,8 +367,8 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Runs TACZ's full first person gun model render for the sample gun, with the render type and display context
-     * TACZ's first person render uses, into buffers that are never drawn. Its functional parts (arms, attachments,
+     * Runs TaCZ's full first person gun model render for the sample gun, with the render type and display context
+     * TaCZ's first person render uses, into buffers that are never drawn. Its functional parts (arms, attachments,
      * muzzle flash, shells, text) run too, and their queued drawing runs and is cleared inside the same render call.
      *
      * @param stack   the sample gun stack
@@ -397,7 +397,7 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Attachment pre-render step: picks one attachment per type once (a loaded one when possible, else TACZ is asked to
+     * Attachment pre-render step: picks one attachment per type once (a loaded one when possible, else TaCZ is asked to
      * load one in the background), then renders each pick once its models are loaded, until every pick is done.
      */
     private static void updateAttachments() {
@@ -428,7 +428,7 @@ public final class TaczFirstEquipPreRender {
 
     /**
      * Picks one registered attachment per attachment type, preferring one whose models are already loaded, and asks
-     * TACZ to load the others in the background. Never waits for a load.
+     * TaCZ to load the others in the background. Never waits for a load.
      */
     private static void pickAttachments() {
         attachmentPicks = new EnumMap<>(AttachmentType.class);
@@ -454,7 +454,7 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Reads whether TACZ finished loading an attachment's models, without waiting.
+     * Reads whether TaCZ finished loading an attachment's models, without waiting.
      *
      * @param index the attachment's client index
      * @return true when its models are loaded
@@ -464,7 +464,7 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Renders one attachment through TACZ's own attachment render, with the sample gun and the first person display
+     * Renders one attachment through TaCZ's own attachment render, with the sample gun and the first person display
      * context, into buffers that are never drawn.
      *
      * @param type the attachment type
@@ -489,8 +489,8 @@ public final class TaczFirstEquipPreRender {
 
     /**
      * Third person pre-render step, only while a shader pack is active (the shadow pass is what draws the local
-     * player's third person gun): draws the sample gun through TACZ's static mesh path into a small offscreen target,
-     * once per tick, until TACZ reports the mesh ready (or unsupported) or THIRD_PERSON_MAX_TRIES ran out.
+     * player's third person gun): draws the sample gun through TaCZ's static mesh path into a small offscreen target,
+     * once per tick, until TaCZ reports the mesh ready (or unsupported) or THIRD_PERSON_MAX_TRIES ran out.
      */
     private static void updateThirdPerson() {
         long start = System.nanoTime();
@@ -522,11 +522,11 @@ public final class TaczFirstEquipPreRender {
     }
 
     /**
-     * Draws a gun through TACZ's third person static mesh path with the main render target unbound: the draw lands in a
+     * Draws a gun through TaCZ's third person static mesh path with the main render target unbound: the draw lands in a
      * small offscreen target that is never shown, and the main target is bound again right after.
      *
      * @param stack the gun stack
-     * @return TACZ's static mesh render result
+     * @return TaCZ's static mesh render result
      */
     private static StaticGunRenderResult renderThirdPersonHidden(ItemStack stack) {
         if (hiddenTarget == null)

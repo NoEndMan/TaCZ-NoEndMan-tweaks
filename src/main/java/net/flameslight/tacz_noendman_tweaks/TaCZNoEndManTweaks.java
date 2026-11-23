@@ -7,11 +7,11 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 /**
- * Entry point of [Tacz] NoEndMan Tweaks. Registers the config. Event listeners live in the events package,
- * and the TACZ fixes are mixins.
+ * Entry point of TaCZ NoEndMan Tweaks. Registers the configs. Event listeners live in the events package,
+ * and the TaCZ fixes are mixins.
  */
-@Mod(TaczNoEndManTweaks.MOD_ID)
-public final class TaczNoEndManTweaks {
+@Mod(TaCZNoEndManTweaks.MOD_ID)
+public final class TaCZNoEndManTweaks {
 
     /** The mod id. */
     public static final String MOD_ID = "tacz_noendman_tweaks";
@@ -21,7 +21,7 @@ public final class TaczNoEndManTweaks {
      *
      * @param context the mod loading context Forge passes in
      */
-    public TaczNoEndManTweaks(FMLJavaModLoadingContext context) {
+    public TaCZNoEndManTweaks(FMLJavaModLoadingContext context) {
         context.registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, MOD_ID + "/common.toml");
         context.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC, MOD_ID + "/client.toml");
     }

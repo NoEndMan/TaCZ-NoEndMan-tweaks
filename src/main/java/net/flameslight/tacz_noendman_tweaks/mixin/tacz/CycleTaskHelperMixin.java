@@ -12,8 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 /**
- * Fix 5. TACZ's CycleTaskHelper.tick copies its task list into a second list, clears it, filters it and copies
- * it back every tick. With an empty task list every one of those steps changes nothing, so it returns at once.
+ * TaCZ's CycleTaskHelper.tick copies its task list into a second list, clears it, filters it and copies
+ * it back every tick. With an empty task list every one of those steps changes nothing, so this code
+ * makes tacz skips this expensive operations.
  * The second list is always empty between ticks, because tick clears it at the end.
  */
 @Mixin(value = CycleTaskHelper.class, remap = false)

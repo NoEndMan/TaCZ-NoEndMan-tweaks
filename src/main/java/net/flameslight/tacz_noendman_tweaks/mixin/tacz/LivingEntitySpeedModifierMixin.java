@@ -16,11 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.UUID;
 
 /**
- * Fix 7. TACZ's updateSpeedModifier calls isAlive first, every tick, for every living entity. For an entity
- * that holds no gun, the only thing the method can do is remove TACZ's two speed modifiers, and removing a
- * modifier that is not there does nothing. So for those entities the cheap checks run first and the method
+ * TaCZ's updateSpeedModifier calls isAlive first, every tick, for every living entity. For an entity
+ * that holds no gun, the only thing the method can do is remove TaCZ's two speed modifiers, and removing a
+ * modifier that is not there, does nothing. So for those entities the cheap checks run first and the method
  * returns without calling isAlive when neither modifier is present. Gun holders, and entities that still carry
- * a TACZ modifier, run TACZ's method unchanged.
+ * a TaCZ modifier, run TaCZ's method unchanged.
  */
 @Mixin(value = LivingEntitySpeedModifier.class, remap = false)
 public abstract class LivingEntitySpeedModifierMixin {
@@ -38,9 +38,9 @@ public abstract class LivingEntitySpeedModifierMixin {
     private LivingEntity shooter;
 
     /**
-     * Returns early for entities without a gun and without TACZ speed modifiers.
+     * Returns early for entities without a gun and without TaCZ speed modifiers.
      *
-     * @param ci the callback info, cancelled when TACZ's method would change nothing
+     * @param ci the callback info, cancelled when TaCZ's method would change nothing
      */
     @Inject(method = "updateSpeedModifier", at = @At("HEAD"), cancellable = true)
     private void tacz_noendman$skipWhenNothingToRemove(CallbackInfo ci) {

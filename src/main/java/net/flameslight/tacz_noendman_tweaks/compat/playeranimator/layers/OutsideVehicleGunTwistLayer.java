@@ -4,7 +4,7 @@ import dev.kosmx.playerAnim.api.TransformType;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.core.util.Vec3f;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
-import net.flameslight.tacz_noendman_tweaks.TaczNoEndManTweaks;
+import net.flameslight.tacz_noendman_tweaks.TaCZNoEndManTweaks;
 import net.flameslight.tacz_noendman_tweaks.config.TurnSettings;
 import net.flameslight.tacz_noendman_tweaks.util.TurnMathUtils;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
@@ -13,15 +13,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 /**
- * Player Animator layer that, on foot in an upright pose with a gun, keeps only the part of TACZ's whole-player turn
- * past the twist limit, so the legs follow only once the upper body twist (EmfGunTwist) reached its limit.
+ * Player Animator layer that, on foot in an upright pose with a gun, changes TaCZ's whole-player turn to apply only
+ * when the upper body twist is past the turn limit.
  */
 public final class OutsideVehicleGunTwistLayer implements IAnimation {
 
     /** Id of this layer in Player Animator's per-player data. */
-    public static final ResourceLocation ID = new ResourceLocation(TaczNoEndManTweaks.MOD_ID, "gun_upper_body_twist");
+    public static final ResourceLocation ID = new ResourceLocation(TaCZNoEndManTweaks.MOD_ID, "gun_upper_body_twist");
 
-    /** Layer priority, applied after TACZ's layers. */
+    /** Layer priority, applied after TaCZ's layers. */
     public static final int PRIORITY = 97;
 
     private final AbstractClientPlayer player;
@@ -57,7 +57,7 @@ public final class OutsideVehicleGunTwistLayer implements IAnimation {
     public void setupAnim(float tickDelta) {}
 
     /**
-     * Keeps only the part of TACZ's whole player turn past the twist limit. EmfGunTwist turns the upper body by the
+     * Keeps only the part of TaCZ's whole player turn past the twist limit. GunTwist turns the upper body by the
      * rest.
      *
      * @param modelName the Player Animator part name
@@ -80,7 +80,7 @@ public final class OutsideVehicleGunTwistLayer implements IAnimation {
             return value;
         }
 
-        // TACZ turned the whole player by taczYaw. Keep only the share past the twist limit.
+        // TaCZ turned the whole player by taczYaw. Keep only the share past the twist limit.
         float kept = (taczYaw - twist) / taczYaw;
         Vec3f changed = new Vec3f(value.getX(), value.getY() * kept, value.getZ());
         TurnMathUtils.setWholeBodyYaw(this.player, changed.getY());

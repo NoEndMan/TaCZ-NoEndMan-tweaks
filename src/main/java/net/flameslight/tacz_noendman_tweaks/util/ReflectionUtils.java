@@ -30,7 +30,7 @@ public class ReflectionUtils {
     }
 
     /**
-     * Finds a declared field and makes it accessible. Logs whether the lookup worked.
+     * Finds a declared field and makes it accessible. Warns when the lookup fails.
      *
      * @param className the fully qualified class name
      * @param fieldName the field name
@@ -40,7 +40,6 @@ public class ReflectionUtils {
         try {
             Field field = Class.forName(className).getDeclaredField(fieldName);
             field.setAccessible(true);
-            ModLogger.debug("reflection: found field {}.{}", className, fieldName);
             return field;
         } catch (ReflectiveOperationException | RuntimeException e) {
             ModLogger.warn("reflection: could not access field {}.{}: {}", className, fieldName, e.toString());

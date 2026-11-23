@@ -5,15 +5,12 @@ import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.minecraft.client.Minecraft;
 
 /**
- * Enables the stencil buffer of Minecraft's main render target at client setup. TACZ enables it the first time a scope
+ * Enables the stencil buffer of Minecraft's main render target at client setup. TaCZ enables it the first time a scope
  * renders, which recreates the main color and depth buffers in the middle of that frame and shows one black frame.
- * Done before any world frame, the recreation is invisible. Client only, only call when TaczCompat.LOADED is true.
+ * The code calls it before any world frame so the recreation is invisible.
+ * Client only and only called when TaCZCompat.LOADED is true.
  */
-public final class TaczEarlyStencil {
-
-    private TaczEarlyStencil() {
-    }
-
+public final class TaCZEarlyStencil {
     /**
      * Enables the main render target's stencil buffer, once. Must run on the render thread.
      */

@@ -1,12 +1,12 @@
 package net.flameslight.tacz_noendman_tweaks.events;
 
-import net.flameslight.tacz_noendman_tweaks.TaczNoEndManTweaks;
+import net.flameslight.tacz_noendman_tweaks.TaCZNoEndManTweaks;
 import net.flameslight.tacz_noendman_tweaks.compat.emf.EmfCompat;
 import net.flameslight.tacz_noendman_tweaks.compat.playeranimator.PlayerAnimatorCompat;
-import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczCompat;
-import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczEarlyStencil;
-import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczFirstEquipPreRender;
-import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczFirstEquipWarmUp;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaCZCompat;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaCZEarlyStencil;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaCZFirstEquipPreRender;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaCZFirstEquipWarmUp;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -17,13 +17,13 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 /**
  * Mod bus listeners of both sides. Each one only forwards to its handler.
  */
-@Mod.EventBusSubscriber(modid = TaczNoEndManTweaks.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = TaCZNoEndManTweaks.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvents {
     @SubscribeEvent
     public static void onCommonSetup(FMLCommonSetupEvent event) {
         ModList mods = ModList.get();
         ModLogger.debug("Integrations: TACZ {}, Entity Model Features {}, Player Animator {}",
-                mods.isLoaded(TaczCompat.MOD_ID), mods.isLoaded(EmfCompat.MOD_ID), mods.isLoaded(PlayerAnimatorCompat.MOD_ID));
+                mods.isLoaded(TaCZCompat.MOD_ID), mods.isLoaded(EmfCompat.MOD_ID), mods.isLoaded(PlayerAnimatorCompat.MOD_ID));
     }
 
     /**
@@ -36,10 +36,10 @@ public class ModEvents {
         event.enqueueWork(EmfCompat::registerHook);
         event.enqueueWork(PlayerAnimatorCompat::registerLayers);
 
-        if (TaczCompat.LOADED) {
-            TaczFirstEquipWarmUp.register();
-            TaczFirstEquipPreRender.register();
-            event.enqueueWork(TaczEarlyStencil::enable);
+        if (TaCZCompat.LOADED) {
+            TaCZFirstEquipWarmUp.register();
+            TaCZFirstEquipPreRender.register();
+            event.enqueueWork(TaCZEarlyStencil::enable);
         }
     }
 }

@@ -2,6 +2,7 @@
   "required": false,
   "minVersion": "0.8",
   "package": "net.flameslight.tacz_noendman_tweaks.mixin.client.oculus",
+  "plugin": "net.flameslight.tacz_noendman_tweaks.compat.oculus.OculusDhMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "client": [
     "DHCompatInternalMixin",

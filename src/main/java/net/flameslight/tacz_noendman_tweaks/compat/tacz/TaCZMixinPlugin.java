@@ -9,17 +9,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Mixin config plugin of the TACZ tweaks: applies their mixins only when TACZ is installed.
+ * Mixin config plugin of the TaCZ tweaks: applies their mixins only when TaCZ is installed.
  */
-public final class TaczMixinPlugin implements IMixinConfigPlugin {
+public final class TaCZMixinPlugin implements IMixinConfigPlugin {
 
     /*
-        TACZ's mod id. A literal, so TaczCompat (which reads ModList, not ready yet at mixin time) is not loaded here.
+        TaCZ's mod id. A literal, so TaCZCompat (which reads ModList, not ready yet at mixin time) is not loaded here.
      */
     private static final String TACZ_MOD_ID = "tacz";
 
     /*
-        Whether TACZ is in the mod list, read once when the mixin config loads.
+        Whether TaCZ is in the mod list, read once when the mixin config loads.
      */
     private boolean taczPresent;
 
@@ -35,11 +35,11 @@ public final class TaczMixinPlugin implements IMixinConfigPlugin {
     }
 
     /**
-     * Applies a TACZ tweak mixin only when TACZ is installed.
+     * Applies a TaCZ tweak mixin only when TaCZ is installed.
      *
      * @param targetClassName the target class
      * @param mixinClassName  the mixin class
-     * @return true when TACZ is installed
+     * @return true when TaCZ is installed
      */
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {

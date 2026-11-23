@@ -4,7 +4,7 @@ import com.tacz.guns.entity.sync.core.DataHolder;
 import net.minecraftforge.common.util.LazyOptional;
 
 /**
- * Added to every Entity by a mixin. Holds the LazyOptional that TACZ's DataHolder capability lookup returned,
+ * Added to every Entity by a mixin. Holds the LazyOptional that TaCZ's DataHolder capability lookup returned,
  * so later lookups skip the scan over all attached capabilities.
  */
 public interface DataHolderCache {

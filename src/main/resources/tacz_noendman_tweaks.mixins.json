@@ -2,7 +2,7 @@
   "required": false,
   "minVersion": "0.8",
   "package": "net.flameslight.tacz_noendman_tweaks.mixin",
-  "plugin": "net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczMixinPlugin",
+  "plugin": "net.flameslight.tacz_noendman_tweaks.compat.tacz.TaCZMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "refmap": "tacz_noendman_tweaks.refmap.json",
   "mixins": [

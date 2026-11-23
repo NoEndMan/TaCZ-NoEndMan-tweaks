@@ -1,6 +1,6 @@
 package net.flameslight.tacz_noendman_tweaks.util;
 
-import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaczCompat;
+import net.flameslight.tacz_noendman_tweaks.compat.tacz.TaCZCompat;
 import net.flameslight.tacz_noendman_tweaks.config.ClientConfig;
 import net.flameslight.tacz_noendman_tweaks.config.TurnSettings;
 import net.minecraft.client.model.geom.PartPose;
@@ -19,12 +19,12 @@ import java.util.WeakHashMap;
 public final class TurnMathUtils {
 
     /*
-        Per entity: the whole player yaw GunTwistLayer left this frame, in radians.
+        Per entity: the whole player yaw OutsideVehicleGunTwistLayer left this frame, in radians.
      */
     private static final Map<Entity, Float> WHOLE_BODY_YAW = new WeakHashMap<>();
 
     /**
-     * Records the whole player yaw GunTwistLayer left this frame, for the head turn.
+     * Records the whole player yaw OutsideVehicleGunTwistLayer left this frame, for the head turn.
      *
      * @param entity  the player
      * @param radians the whole player yaw in radians
@@ -69,7 +69,8 @@ public final class TurnMathUtils {
     }
 
     /**
-     * Returns the head yaw relative to the body, the same way vanilla's renderer computes it.
+     * Returns the head yaw relative to the body, the same way vanilla's renderer computes it, minus the whole body turn
+     * this mod applies on vehicles past the head turn limit.
      *
      * @param entity      the entity
      * @param partialTick the partial tick of this frame
@@ -131,14 +132,14 @@ public final class TurnMathUtils {
     }
 
     /**
-     * Tells whether the gun turn applies to the entity right now: TACZ installed, enableTurnWithGunFix on, and the
+     * Tells whether the gun turn applies to the entity right now: TaCZ installed, enableTurnWithGunFix on, and the
      * twist allowed for its situation.
      *
      * @param entity the entity
      * @return true when the turn applies to the entity right now
      */
     public static boolean isGunTurnEnabled(Entity entity) {
-        if (!TaczCompat.LOADED || !ClientConfig.isTurnWithGunFix())
+        if (!TaCZCompat.LOADED || !ClientConfig.isTurnWithGunFix())
             return false;
 
         return entity.getVehicle() != null

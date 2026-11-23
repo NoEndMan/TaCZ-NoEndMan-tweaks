@@ -1,5 +1,6 @@
 package net.flameslight.tacz_noendman_tweaks.compat.emf;
 
+import net.flameslight.tacz_noendman_tweaks.client.EmfVehicleTurn;
 import net.flameslight.tacz_noendman_tweaks.client.GunTwist;
 import net.flameslight.tacz_noendman_tweaks.client.NoGunTwist;
 import net.flameslight.tacz_noendman_tweaks.logger.ModLogger;
@@ -15,8 +16,9 @@ import traben.entity_model_features.models.parts.EMFModelPartVanilla;
 import java.util.Map;
 
 /**
- * EMF animation hook: puts the untwisted pose back before EMF animates the player model, and applies the twist and the
- * gun turn again after EMF re-poses it. Only loaded when EMF is installed.
+ * EMF animation hook: puts the untwisted pose back before EMF animates the player model, and applies the twist, the
+ * gun turn and the deferred vehicle head yaw reduction (EmfVehicleTurn) after EMF re-poses it. Only loaded when EMF is
+ * installed.
  */
 public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
 
@@ -36,7 +38,7 @@ public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
     }
 
     /**
-     * Applies the twist and the gun turn after an EMF animation.
+     * Applies the twist, the gun turn and the deferred vehicle head yaw reduction after an EMF animation.
      *
      * @param context the animation context
      * @param paused  whether the animation was paused
@@ -53,11 +55,17 @@ public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
         NoGunTwist.reapplyOn(parts.get("body"), parts.get("right_arm"), parts.get("left_arm"), parts.get("head"),
                 parts.get("jacket"), parts.get("right_sleeve"), parts.get("left_sleeve"), parts.get("hat"));
         GunTwist.afterAnimation(parts.get("body"));
+
+        if (EmfVehicleTurn.isDeferredFor(root.isMainModel))
+            EmfVehicleTurn.afterEmf(parts.get("head"), parts.get("hat"), parts.get("right_arm"), parts.get("left_arm"),
+                    parts.get("right_sleeve"), parts.get("left_sleeve"));
+
         ModLogger.debugOnce("upper body twist applied after an EMF animation");
     }
 
     /**
-     * Applies the twist and the gun turn after EMF copies a stored pose onto the model.
+     * Applies the twist, the gun turn and the deferred vehicle head yaw reduction after EMF copies a stored pose onto
+     * the model.
      *
      * @param pose   the copied pose
      * @param model  the model the pose was copied to
@@ -69,6 +77,10 @@ public final class EmfTwistHook extends EMFAnimationApi.EMFAnimationHook {
             NoGunTwist.reapplyOn(player.body, player.rightArm, player.leftArm, player.head,
                     player.jacket, player.rightSleeve, player.leftSleeve, player.hat);
             GunTwist.afterPoseCopy(player.body);
+
+            if (EmfVehicleTurn.isDeferredFor(true))
+                EmfVehicleTurn.afterEmf(player.head, player.hat, player.rightArm, player.leftArm, player.rightSleeve,
+                        player.leftSleeve);
         } else
             NoGunTwist.reapplyOn(model.body, model.rightArm, model.leftArm, model.head, null, null, null, model.hat);
 

@@ -8,7 +8,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 /**
- * Gives every entity a slot for the cached TACZ DataHolder capability result (fix 3).
+ * Gives every entity a slot for the cached TaCZ DataHolder capability result, so SyncedEntityDataMixin's getDataHolder
+ * skips the scan over all attached capabilities.
  */
 @Mixin(Entity.class)
 public abstract class EntityMixin implements DataHolderCache {
